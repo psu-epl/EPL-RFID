@@ -7,10 +7,10 @@ and the ECE Capstone called EPL RFID Capstone Project.
 
 Here are links to the previous repos:
 
-LUCCA:
-Repo: https://github.com/LUCCA-Capstone/LUCCA
-Wiki: https://github.com/LUCCA-Capstone/LUCCA/wiki
+### LUCCA:
+#### Repo: https://github.com/LUCCA-Capstone/LUCCA
+#### Wiki: https://github.com/LUCCA-Capstone/LUCCA/wiki
 
-EPL RFID:
-Repo: https://github.com/Crimson89/RFID-Capstone
-Wiki: https://github.com/Crimson89/RFID-Capstone/wiki
+### EPL RFID:
+#### Repo: https://github.com/Crimson89/RFID-Capstone
+#### Wiki: https://github.com/Crimson89/RFID-Capstone/wiki
