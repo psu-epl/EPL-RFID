@@ -1,0 +1,247 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block description %}
+<meta name="description" content="User Management Edit a User/Station">
+{% endblock %}
+
+{% block title %}
+<title>LUCCA User Management Edit</title>
+{% endblock %}
+
+{% block customCSS %}
+<link rel="stylesheet" href="/stylesheets/userManagement.css">
+{% endblock %}
+
+{% block adminCurrent %}
+<a class="nav-link dropdown-toggle active" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin management<span class="sr-only">(current)</span></a>
+{% endblock %}
+
+{% block content %}
+{# User Information Table #}
+<div class="container mb-3 pb-3">
+<div class="row">
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="table-responsive">
+            <table  class="table table-bordered">
+                <tr>
+                    <th>First name</th>
+                    <td>
+                        <input type="text" name="first" class="form-control" id="firstName" value="{{user.first}}" data-initial="{{user.first}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Last name</th>
+                    <td>
+                        <input type="text" name="last" class="form-control" id="lastName" value="{{user.last}}" data-initial="{{user.last}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Badge ID</th>
+                    <td id="badgeID">{{user.badge}}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>
+                        <input type="email" name="email" class="form-control" id="userEmail" value="{{user.email}}" data-initial="{{user.email}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>
+                        <input type="phone" name="phone" class="form-control" id="userPhone" value="{{user.phone}}" data-initial="{{user.phone}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Signature</th>
+                    <td>{{user.signature}}</td>
+                </tr>
+                <tr>
+                    <th>Parent/Guardian signature</th>
+                    <td>{{user.ecSignature}}</td>
+                </tr>
+                <tr>
+                    <th>Emergency contact name</th>
+                    <td>
+                        <input type="text" name="ecName" class="form-control" id="ecName" value="{{user.ecName}}" data-initial="{{user.ecName}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Emergency relationship</th>
+                    <td>
+                        <input type="text" name="ecRel" class="form-control" id="ecRel" value="{{user.ecRel}}" data-initial="{{user.ecRel}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Emergency phone number</th>
+                    <td>
+                        <input type="text" name="ecPhone" class="form-control" id="ecPhone" value="{{user.ecPhone}}" data-initial="{{user.ecPhone}}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{{user.status}}</td>
+                </tr>
+                <tr>
+                    <th>Mailing List</th>
+                    <td>
+                        <input type="checkbox" name="mailingList" id="mailingList"  {% if user.mailingList == true %} data-initial="true" checked {% endif %} />
+                    </td>                    
+                </tr>
+                <tr>
+                    <th>Last seen: </th>
+                    <td>{{user.updatedAt}}</td>
+                </tr>
+                <tr>
+                    <th>Date registered: </th>
+                    <td>{{user.createdAt}}</td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <form id="deleteForm" action="/userManagement/deleteUser/{{user.badge}}" method="post">
+                        <button type='submit' class="btn btn-primary" name='submit' value="">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    {% if user.confirmation  %}
+                        <td>
+                        {% if user.status == "User"%}
+                            <br> 
+                            <form id="ChangeStatusToManager" action="/userManagement/promoteUser/{{user.badge}}" method="post">        
+                            <button type='submit' class="btn btn-primary" name='submit' value="">Promote to Manager</button>
+                            </form>
+                        {% elif user.status == "Manager" %}
+                            <br>
+                            <form id="ChangeStatusToUser" action="/userManagement/demoteManager/{{user.badge}}" method="post">
+                            <button type='submit' class="btn btn-primary" name='submit' value="">Demote to User</button>
+                            </form>
+                        {% elif user.status == "Admin" %}
+                            <br>
+                            <form id="ChangeAdminStatusToManager" action="/userManagement/demoteAdmin/{{user.badge}}" method="post">
+                            <button type='submit' class="btn btn-primary" name='submit' value="">Demote to Manager</button>
+                            </form>    
+                        {% endif %}  
+                            <br>
+                            <button class="btn btn-primary" name='updateUser' id="updateUser">Save/Update User Information</button>
+                        </td>
+                    {% else %}
+                        <td>
+                            <form id="validateForm" action="/userManagement/confirmUser/{{user.badge}}" method="post">
+                            <button type='submit' class="btn btn-primary" name='submit' value="">Validate</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+                    {% if user.loggedIn %}
+                    <tr>
+                    <th></th>
+                        <td>
+                        <form id="BadgeOutUser" action="/userManagement/badgeOutUser/{{user.badge}}" method="post">
+                        <button type='submit' class="btn btn-primary" name='submit' value="">Badge Out</button>
+                        </form>
+                        </td>
+                    </tr>    
+                    {% endif %}
+            </table>
+        </div>
+    </div>
+
+    {# Station listing #}
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="table-responsive">
+            <table  class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col" nowrap="nowrap">Station ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" nowrap="nowrap">Trained on</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for station in allStations %}
+                    <tr>
+                        <td>{{station.sId}}</td>
+                        <td>{{station.name}}</td>
+                        <td>{{station.description}}</td>
+                        {% if station.trained %}
+                            <td>Trained</td>
+                            <td>{{station.trainedDate}}</td>
+                            <td>
+                                <form id="revokePrivForm" action="/userManagement/deletePrivilege/{{user.badge}}/{{station.sId}}" method="post">
+                                <button type='submit' class="btn btn-primary" name='submit' value="">Revoke</button> 
+                                </form>
+                            </td>
+                        {% else %}
+                            <td>Not Trained</td>
+                            <td>---</td>
+                            <td>
+                                <form id="grantPrivForm" action="/userManagement/grantPrivilege/{{user.badge}}/{{station.sId}}" method="post">
+                                <button type='submit' class="btn btn-primary" name='submit' value="">Grant Access</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}  
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default user_panel">
+  <div class="panel-heading">
+    <h3 class="panel-title pl-2">Events associated with {{user.first}} {{user.last}} ({{user.badge}})</h3>
+  </div>
+</div>
+
+<div class="container mb-5 pb-5">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="d-flex">
+                <th class="col-2">ID</th>
+                <th class="col-2">Event Type</th>
+                <th class="col-4">Date</th>
+                <th class="col-4">Event</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if log | length %}
+               {% for entry in log %}
+                <tr class="d-flex">
+                    <td class="col-2">{{entry.id}}</td>
+                    <td class="col-2">{{entry.eventClass}}</td>
+                    <td class="col-4">{{entry.eventDate}}</td>                    
+                    <td class="col-4">{{entry.event}}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="d-flex">
+                    {% for i in [2,2,4,4]%}
+                        <td class="col-{{i}}">No data exists yet.</td>
+                    {% endfor %}
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+  <script src="/javascripts/updateUserInfo.js"></script>
+{% endblock %}

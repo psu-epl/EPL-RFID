@@ -1,0 +1,188 @@
+#!/usr/bin/env node
+
+/******************************************************************
+  * Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson,
+  * Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood          
+  * This program is licensed under the "MIT License".              
+  * Please see the file LICENSE in the source                      
+  * distribution of this software for license terms.               
+/******************************************************************/
+
+var config = require('../local_modules/config');
+var fs = require('fs')
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var api_app = require('../api_app');
+var debug = require('debug')('lucca:server');
+var https = require('https');
+
+/**
+ * Get interface address and port from environment and store in Express.
+ */
+
+var bind_addr = process.env.BIND_ADDRESS || config.get('Server', 'bind_address') || '0.0.0.0';
+app.set('bind_addr', bind_addr);
+
+var port = normalizePort(process.env.PORT || config.get('Server', 'bind_port') || '443');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = https.createServer({
+    'pfx': fs.readFileSync(config.get('Server', 'pkcs_cert_file')),
+  }, app);
+
+/**
+ * Listen on provided port, on specified network interface(s).
+ */
+
+server.listen(port, bind_addr);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+///////////////////////////////////////////////////////
+
+if( config.get('Server', 'redirect_port_80') != "no" ){
+  var http = require('http');
+  var http_redirector = http.createServer(
+    function(req, res) {  
+      res.writeHead(307, { "Location": "https://" + req.headers['host'].split(':')[0] + ':' + port + req.url });
+      res.end();
+    }
+  ).listen(8080);
+
+///////////////////////////////////////////////////////
+
+var api_bind_addr = process.env.API_BIND_ADDRESS || config.get('API', 'bind_address') || '0.0.0.0';
+api_app.set('bind_addr', api_bind_addr);
+
+var api_port = normalizePort(process.env.API_PORT || config.get('API', 'bind_port') || '9959');
+api_app.set('port', api_port);
+
+/**
+ * Create HTTP server.
+ */
+
+var api_server = https.createServer({
+    'pfx': fs.readFileSync(config.get('API', 'pkcs_cert_file')),
+    requestCert: config.get('Developer Options', 'require_client_certificate') == 'false' ? false : true,
+    rejectUnauthorized: config.get('Developer Options', 'validate_client_certificate') == 'false' ? false : true
+}, api_app);
+
+/**
+ * Listen on provided port, on specified network interface(s).
+ */
+
+api_server.listen(api_port, api_bind_addr);
+api_server.on('error', api_onError);
+api_server.on('listening', api_onListening);
+
+/**
+ * Event listener for API HTTP server "error" event.
+ */
+
+function api_onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof api_port === 'string'
+    ? 'Pipe ' + api_port
+    : 'Port ' + api_port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for API HTTP server "listening" event.
+ */
+
+function api_onListening() {
+  var addr = api_server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+}

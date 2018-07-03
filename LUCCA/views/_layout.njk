@@ -1,0 +1,144 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- description block used to provider meta tag to describe page -->
+    {% block description %}{% endblock %}
+    <meta name="author" content="PSU Capstone F2017">
+    <!-- title block to list title of page to be displayed in browser tab -->
+    {% block title %}{% endblock %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+ 
+    <!-- Include Date Range Picker -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    {% block customCSS %}
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    {% endblock %}
+  </head>
+
+  <body>
+    {% block navbar %}
+      <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="/">EPL WEB APP</a>
+          </div> <!--navbar-header-->
+
+          <!-- Collect the nav links and content for toggling -->
+          <!-- Each navbar button is its own block so child-pages can denote which is "active" -->
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+
+              {% block Badgein %}
+              <li class="nav-item">
+                <a class="nav-link" href="/badgein">Badge-in</a>
+              </li>
+              {% endblock %}
+
+              {% if not authenticated %}
+                {% block AdminLogin %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/adminLogin">Admin Login</a>
+                </li>
+                {% endblock %}
+              {% endif %}
+
+              <!-- The adminManagement block should only be displayed (inherited) if an admin "session" is active -->
+              {% if authenticated %}
+                {% block adminManagement %}
+                <li class="nav-item dropdown">
+                    {% block adminCurrent %}
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin management</a>
+                    {% endblock %}
+                    <div class="dropdown-menu" aria-labelledby="dropdown10">
+                      <a class="dropdown-item" id="userNav" href="/userManagement">Users</a>
+                      <a class="dropdown-item" id="stationNav" href="/stationManagement/all">Stations</a>
+                      <a class="dropdown-item" id="eventsNav" href="/eventsLog/all">Events</a>
+                      <a class="dropdown-item" id="regAdminNav" href="/adminRegister">Register new admin</a>
+                      <a class="dropdown-item" id="resetAdminNav" href="/adminReset">Reset an admin password</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Log Out</a>
+                </li>
+                {% endblock %} <!-- /end adminManagment block -->
+              {% endif %}
+
+            </ul> <!-- /navbar-nav mr-auto -->
+          </div> <!-- /navbarCollapse -->
+        </div> <!-- /container-fluid-->
+      </nav>
+    {% endblock %} <!-- /end navbar block -->
+
+    <!-- container for displaying alert messages to the user -->
+    <div class="container">
+      {% block alerts %}      
+        {% if messages.success %} 
+          {% for msg in messages.success%}
+          <div class="alert alert-success alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{msg}}
+          </div>
+          {% endfor %}
+        {% endif %}
+        {% if messages.error %} 
+          {% for msg in messages.error%}
+          <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{msg}}
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endblock %}
+    </div>
+
+    <div class="container">
+      <!-- Add body from child in this "content" block -->
+      {% block content %}
+      {% endblock %}
+    </div> <!-- /container -->
+
+    <!-- Footer will contain copyright and/or licence information etc. -->
+    {% block footer %}
+    {% endblock %}
+    
+    {% block scripts %}
+    
+    {% endblock %}
+    
+    {% if messages.fade_out %}
+      <script>
+        $(function() {
+          setTimeout(function () {
+            $('.alert-dismissible').fadeOut('slow');
+          }, {{ messages.fade_out }});
+        });
+      </script>
+    {% endif %}
+
+    {% block custom_scripts %}
+    {% endblock %}
+  </body>
+</html>

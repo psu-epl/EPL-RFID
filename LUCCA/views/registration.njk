@@ -1,0 +1,93 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block description %}
+<meta name="description" content="Registration form for new users">
+{% endblock %}
+
+{% block title %}
+<title>LUCCA User Registration</title>
+{% endblock %}
+
+{% block content %}
+<img src="/images/liability_terms.PNG" alt="Liability form">
+<form method="POST">
+  <div class="form-group row">
+    <label for="inputFirstName" class="col-sm-2 col-form-label">First name</label>
+    <div class="col-sm-4">
+      <input type="firstName" name="first" class="form-control" id="inputFirstName" placeholder="Enter first name" value="{{ messages.first }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputLastName" class="col-sm-2 col-form-label">Last name</label>
+    <div class="col-sm-4">
+      <input type="lastName" name="last" class="form-control" id="inputLastName" placeholder="Enter last name" value="{{ messages.last }}" required>
+    </div>
+  </div>
+  <div class="form-group row"> 
+    <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+    <div class="col-sm-4">
+      <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Enter email" value="{{ messages.email }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputPhone" class="col-sm-2 col-form-label">Phone #</label>
+    <div class="col-sm-4">
+      <input type="phone" name="phone" class="form-control" id="inputPhone" placeholder="Enter phone number" value="{{ messages.phone }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputSignature" class="col-sm-2 col-form-label">Participant signature</label>
+    <div class="col-sm-4">
+      <input type="signature" name="signature" class="form-control" id="inputSignature" placeholder="Sign with your name" value="{{ messages.signature }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputCoSignature" class="col-sm-2 col-form-label">Co-signature of parent or guardian (if necessary)</label>
+    <div class="col-sm-4">
+      <input type="coSignature" name="ecSignature" class="form-control" id="inputCoSignature" placeholder="Sign with parent or guardian name" value="{{ messages.ecSignature }}">
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputEmergencyContactName" class="col-sm-2 col-form-label">Emergency contact name</label>
+    <div class="col-sm-4">
+      <input type="ecName" name="ecName" class="form-control" id="inputEmergencyContactName" placeholder="Enter emergency contact name" value="{{ messages.ecName }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputRelationship" class="col-sm-2 col-form-label">Emergency contact relationship</label>
+    <div class="col-sm-4">
+      <input type="ecRelation" name="ecRel" class="form-control" id="inputRelationship" placeholder="Enter emergency contact relationship" value="{{ messages.ecRel }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputEmergencyContactPhone" class="col-sm-2 col-form-label">Emergency contact phone #</label>
+    <div class="col-sm-4">
+      <input type="ecPhone" name="ecPhone" class="form-control" id="inputEmergencyContactPhone" placeholder="Enter emergency contact phone" value="{{ messages.ecPhone }}" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-sm-2">Mailing List Signup (Workshop Info)</div>
+    <div class="col-sm-10">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="mailingList" id="mailingList" {{ messages.mailingList }}>
+        <label class="form-check-label" for="mailingList">
+          Check box to signup
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-sm-10">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

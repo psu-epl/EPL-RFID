@@ -1,0 +1,133 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block description %}
+<meta name="description" content="Station Management for admin">
+{% endblock %}
+
+{% block title %}
+<title>LUCCA Station Management</title>
+{% endblock %}
+
+{% block adminCurrent %}
+<a class="nav-link dropdown-toggle active" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin management<span class="sr-only">(current)</span></a>
+{% endblock %}
+
+{% block content %}
+<!-- Main page description -->
+<div class="panel panel-default user_panel">
+  <div class="panel-heading">
+    <h3 class="panel-title"><center>Station Management Page</center></h3>
+  </div>
+</div>
+<br />
+
+<!-- table header and filter stations container -->
+<div class ="container">
+  <div class="form row" >
+    <div class="col-10">
+      <h3>Station List</h3>
+    </div>
+    <div class="col-2 align-self-end">
+      <!-- dropdown menu to filter stations displayed based on registered status -->
+      <div class="btn-group dropright">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropRightMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Filter Stations
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropRightMenu">
+          <a class="dropdown-item" href="/stationManagement/online">Online Stations</a>
+          <a class="dropdown-item" href="/stationManagement/offline">Offline Stations</a>
+          <a class="dropdown-item" href="/stationManagement/all">All Stations</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /filter stations container -->
+<br />
+
+<!-- container for table of filtered station results -->
+<div class="container">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+          <th scope="col">Online</th>
+          <th scope="col" nowrap="nowrap">Being used by</th>
+          <th scope="col">Created</th>
+          <th scope="col">Updated</th>
+          <th scope="col">Edit station</th>
+        </tr>
+      </thead>
+
+      {% for item in obj %}
+        <tr>
+          <form method="POST">
+            <td>{{item.sId}}
+              <div class="col">
+                <input type="hidden" name="sId" class="form-control" id="sId" value="{{item.sId}}">
+              </div>
+            </td>
+            <td>
+              <div class="col pl-0">
+                <input type="text" name="name" class="form-control" id="name" value="{{item.name}}">
+              </div>
+            </td>
+            <td>
+              <div class="col pl-0">
+                <input type="text" name="description" class="form-control" id="description" value="{{item.description}}">
+              </div>
+            </td>
+
+            {% if item.registered === true %}
+              <td>
+                <div class="form-check active">
+                  <input class="form-check-input mx-auto" name="registered" checked type="checkbox" id="blankCheckbox" value="true">
+                </div>
+              </td>
+            {% else %}
+              <td>
+                <div class="form-check active">
+                  <input class="form-check-input mx-auto" name="registered" type="checkbox" id="blankCheckbox" value="true">
+                </div>
+              </td>
+            {% endif %}
+            <td>{{item.usedBy}}</td>
+
+            <td>{{item.createdAt}}</td>
+            <td>{{item.updatedAt}}</td>
+            <td>
+              <div class="col pl-0">
+                <div class="btn-group" role="group" aria-label="button-group">
+                  <button type="submit" class="btn btn-secondary">Update</button>
+                  <button type="submit" name="delete" value="true" class="btn btn-primary" role="button">Delete</a>
+                </div>
+              </div>
+            </td>
+          </form>
+        </tr>
+      {% endfor %} <!-- move on to next station (item) in list (obj) -->
+    </table>
+  </div> <!-- <table-responsive scrolling for mobile> -->
+</container>
+<!-- /container table for filtered station results -->
+<br /><br />
+{% endblock %}
+
+{% block custom_scripts %}
+<script>
+  $(function() {
+    $('#stationNav').addClass("active");
+  });
+</script>
+{% endblock %}

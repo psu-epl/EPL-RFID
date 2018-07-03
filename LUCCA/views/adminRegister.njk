@@ -1,0 +1,37 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block adminCurrent %}
+<a class="nav-link dropdown-toggle active" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin management<span class="sr-only">(current)</span></a>
+{% endblock %}
+
+{% block content %}
+<form action="/adminRegister" method="POST">
+  <h2>Promote exiting user to admin</h2>
+    <div class="form-group">
+      <input name="email" type="email" class="form-control" placeholder="Enter email" style="width: 300px;" required>
+    </div>
+    <div class="form-group">
+      <input name="password" type="password" class="form-control" id="createpassword" placeholder="Enter Password" style="width: 300px;" required>
+    </div>
+    <div class="form-group">
+      <input name="reenterpassword" type="password" class="form-control" id="reenterpassword" placeholder="Re-enter Password" style="width: 300px;" required>
+    </div>
+  <button class="btn btn-primary" type="submit" role="button">Sign Up</button>
+</form>
+{% endblock %}
+
+{% block custom_scripts %}
+<script>
+  $(function() {
+    $('#regAdminNav').addClass("active");
+  });
+</script>
+{% endblock %}

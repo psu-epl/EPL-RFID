@@ -1,0 +1,73 @@
+/******************************************************************
+  * Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson,
+  * Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood          
+  * This program is licensed under the "MIT License".              
+  * Please see the file LICENSE in the source                      
+  * distribution of this software for license terms.               
+/******************************************************************/
+
+body {
+  padding-bottom: 40px;
+}
+
+.form-signin {
+  max-width: 450px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+form {
+  margin-top: 30px;
+}
+
+.searchUserForm {
+  margin-top: 0 !important;
+}
+
+input[type="searchBox"] {
+  background: #eee;
+  padding: 5px 10px;
+  border-radius:0;
+  -moz-border-radius:0;
+  -webkit-border-radius:0;
+  -o-border-radius:0;
+  border: 1px solid #ccc;
+  width:100%;
+}
+
+.custom-select[type="searchBox"] {
+  background-color: #eee;
+}

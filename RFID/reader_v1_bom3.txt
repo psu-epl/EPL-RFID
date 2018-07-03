@@ -1,0 +1,31 @@
+﻿Partlist exported from C:/Users/Owner/Documents/eagle/Capstone_RFID/reader_v1.sch at 5/26/2018 2:22 PM
+
+Qty Value                                 Package     Parts                        Description                                                                                                   
+1   Red LED                               LED5MM      RED                          LED                                                                     
+1   Green LED                             LED5MM      GREEN                        LED                                                                                                                         
+1   1 Meg                                 R0805       R2                           RESISTOR, American symbol                                               
+1   1.8k                                  R0805       R3                           RESISTOR, American symbol                                               
+1   100                                   R0805       R11                          RESISTOR, American symbol                                               
+4   100n                                  C0805       C12, C13, C16, C17           CAPACITOR, European symbol                                              
+6   10k                                   R0805       R7, R8, R9, R12, R15, R18    RESISTOR, American symbol                                               
+1   12V Zener                             Thru Hole   D1                           DIODE                                                                   
+2   15k                                   R0805       R10, R19                     RESISTOR, American symbol                                               
+1   16MHz                                 CRYSTAL     Y1                           16MHz Crystal                                                           
+1   1N5824 (20-40V, 5A Schottkey)         Thru Hole   D2                           Schottky Diode                                                          
+2   1k                                    R0805       R13, R14                     RESISTOR, American symbol                                               
+7   1n                                    C0805       C4, C6, C7, C8, C9, C10, C11 CAPACITOR, European symbol                                              
+1   2.2n                                  C0805       C5                           CAPACITOR, European symbol                                              
+1   2.7k                                  R0805       R5                           RESISTOR, American symbol                                               
+2   220                                   R0805       R16, R17                     RESISTOR, American symbol                                               
+1   220u                                  Polarized   C20                          POLARIZED CAPACITOR, American symbol                                    
+2   22p                                   C0805       C14, C15                     CAPACITOR, European symbol                                              
+1   328P                                  DIP28       U1                           Atmel 328P                                                              
+1   33u                                   Thru Hole   L1                           INDUCTOR, American symbol                                               
+1   47k                                   R0805       R4                           RESISTOR, American symbol                                               
+1   680u                                  Polarized   C19                          POLARIZED CAPACITOR, American symbol                                    
+1   82k                                   R0805       R6                           RESISTOR, American symbol                                               
+1   860k                                  R0805       R1                           RESISTOR, American symbol                                               
+1   BUZZER (=<3.3V)                       BUZZER-12MM BUZZER                       Buzzer                                                                  
+2   LF353N                                DIL08       LF353_1, LF353_2             OP AMP                                                                  
+1   LM2596T                               T05D        LM2596                       SIMPLE SWITCHER® Power Converter 150 kHz 3A Step-Down Voltage Regulator 
+1   2x20 Female Header		 	  2X20        J1                           Raspberry Pi GPIO Header                                                

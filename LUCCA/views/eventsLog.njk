@@ -1,0 +1,98 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block description %}
+<meta name="description" content="Display events log for admin">
+{% endblock %}
+
+{% block title %}
+<title>LUCCA Events Log</title>
+{% endblock %}
+
+{% block adminCurrent %}
+<a class="nav-link dropdown-toggle active" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin management<span class="sr-only">(current)</span></a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Main page description -->
+<div class="panel panel-default user_panel">
+  <div class="panel-heading">
+    <h2 class="panel-title"><center>Events Log</center></h2>
+  </div>
+</div>
+<br />
+
+<!-- table header and filter stations container -->
+<div class ="container">
+  <div class="form row" >
+    <div class="col-10">
+      <h3>Recent Events</h3>
+    </div>
+    <div class="col-2 align-self-end">
+      <!-- dropdown menu to filter stations displayed based on registered status -->
+      <div class="btn-group dropright">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropRightMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Filter by event
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropRightMenu">
+          <a class="dropdown-item" href="/eventsLog/all">All log entries</a>
+          <a class="dropdown-item" href="/eventsLog/userTraffic">User traffic</a>
+          <a class="dropdown-item" href="/eventsLog/privilege">Privilege modifications</a>
+          <a class="dropdown-item" href="/eventsLog/admin">Administration</a>
+          <a class="dropdown-item" href="/eventsLog/station">Station activity</a>
+          <a class="dropdown-item" href="/eventsLog/error">Internal errors</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /filter stations container -->
+<br />
+
+<!-- container for table of filtered station results -->
+<div class="container">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Event class</th>
+          <th scope="col">Entity</th>
+          <th scope="col">Event</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+
+      {% for item in obj %}
+        <tr>
+          <form method="POST">
+            <td>{{item.id}}</td>
+            <td>{{item.eventClass}}</td>
+            <td>{{item.entity}}</td>
+            <td>{{item.event}}</td>
+            <td>{{item.eventDate}}</td>
+          </form>
+        </tr>
+      {% endfor %} <!-- move on to next station (item) in list (obj) -->
+    </table>
+  </div> <!-- <table-responsive scrolling for mobile> -->
+</container>
+<!-- /container table for filtered station results -->
+<br /><br />
+{% endblock %}
+
+{% block custom_scripts %}
+<script>
+  $(function() {
+    $('#eventsNav').addClass("active");
+  });
+</script>
+{% endblock %}

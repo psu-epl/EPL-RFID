@@ -1,0 +1,41 @@
+{# --------------------------------------------------------------- #}
+{# Copyright (c) 2018 Daniel Eynis, Bishoy Hanna, Bryan Mikkelson, #}
+{# Justin Moore, Huy Nguyen, Michael Olivas, Andrew Wood           #}
+{# This program is licensed under the "MIT License".               #}
+{# Please see the file LICENSE in the source                       #}
+{# distribution of this software for license terms.                #}
+{# --------------------------------------------------------------- #}
+
+{% extends '_layout.njk' %}
+
+{% block description %}
+<meta name="description" content="a page for the user to sign in his badge.">
+{% endblock %}
+
+{% block title %}
+<title>Badge In Page</title>
+{% endblock %}
+
+<!-- Custom styles for this template -->
+{% block customCSS %}
+<link rel="stylesheet" href="/stylesheets/badgein.css">
+{% endblock %}
+
+{% block Badgein %}
+<li class="nav-item active">
+  <a class="nav-link" href="/badgein">Badge-in<span class="sr-only">(current)</span></a>
+</li>
+{% endblock %}
+
+{% block content %}
+    <form action="/badgein" method="post">
+    <h1>Please enter or scan badge</h1>
+    <div class="center">
+      <input type="text" name="badgeNumber" placeholder="Enter Badge ID"required>
+    </div>
+    <button class="btn btn-primary" type="Submit">Submit</button>
+    </form>
+{% endblock %}
+
+
+
