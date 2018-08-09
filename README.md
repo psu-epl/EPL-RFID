@@ -28,7 +28,11 @@ This involves lots of building packages from source. You likely don't want to do
 
 make sure you edit your PATH variable in your ~/.bashrc to something similar to:
 
-export IDF_PATH=~/path_to_your_tools/esp-idf
-export PATH=$PATH:/home/chad/path_to_binaries/xtensa-esp32-elf/bin:/home/chad/path_to_binaries/crosstool-NG/builds/xtensa-esp32-elf/bin/
+export IDF_PATH=~/path/to/submodule/esp-idf
+export PATH=$PATH:/home/chad/path/to/binaries/xtensa-esp32-elf/bin:/home/chad/path/to/binaries/crosstool-NG/builds/xtensa-esp32-elf/bin/
 
-Code fun things!
+Bad things happen when you are following the wrong path...
+
+You can verify your path by typing "echo $PATH"
+
+Code victoriously brave warrior!
