@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := app_eplrfid
+PROJECT_NAME := app_blinky
 
 include $(IDF_PATH)/make/project.mk
 

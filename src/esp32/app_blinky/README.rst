@@ -1,7 +1,3 @@
-app_eplrfid is based off the ESP-IDF template app.
-
-Happy coding!
-
 ESP-IDF template app
 ====================
 
