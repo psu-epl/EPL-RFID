@@ -15,7 +15,7 @@ Here are links to the previous repos:
 #### Repo: https://github.com/Crimson89/RFID-Capstone
 #### Wiki: https://github.com/Crimson89/RFID-Capstone/wiki
 
-# Building and installing ESP-IDF toolchain and environment
+# Building ESP-IDF toolchain and environment
 From a linux console type the following commands:   
 
 git clone https://github.com/psu-epl/EPL-RFID.git  
