@@ -14,3 +14,21 @@ Here are links to the previous repos:
 ### EPL RFID:
 #### Repo: https://github.com/Crimson89/RFID-Capstone
 #### Wiki: https://github.com/Crimson89/RFID-Capstone/wiki
+
+# Installation
+From a linux console type the following commands:   
+
+git clone https://github.com/psu-epl/EPL-RFID.git  
+cd EPL-RFID  
+git submodule update --init  
+
+Then follow "the Setting Up ESP-IDF" directions here: https://github.com/espressif/esp-idf  
+
+This involves lots of building packages from source. You likely don't want to do this very many times.
+
+make sure you edit your PATH variable in your ~/.bashrc to something similar to:
+
+export IDF_PATH=~/path_to_your_tools/esp-idf
+export PATH=$PATH:/home/chad/path_to_binaries/xtensa-esp32-elf/bin:/home/chad/path_to_binaries/crosstool-NG/builds/xtensa-esp32-elf/bin/
+
+Code fun things!
