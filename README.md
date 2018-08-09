@@ -33,6 +33,6 @@ export PATH=$PATH:/home/chad/path/to/binaries/xtensa-esp32-elf/bin:/home/chad/pa
 
 Bad things happen when you are following the wrong path...
 
-You can verify your path by typing "echo $PATH"
+Focus your chi using "echo $PATH"
 
-Code victoriously brave warrior!
+Code to victory brave warrior!
