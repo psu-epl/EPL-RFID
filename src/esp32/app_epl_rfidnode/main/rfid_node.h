@@ -17,9 +17,24 @@
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
+#include "esp_log.h"
 
-#define AP_SSID "rfid_pi"
-#define AP_PW "pimustdie"
+
+#include "lwip/err.h"
+#include "lwip/sockets.h"
+#include "lwip/sys.h"
+#include "lwip/netdb.h"
+#include "lwip/dns.h"
+
+#include "esp_tls.h"
+#include "esp_event_loop.h"
+#include "freertos/event_groups.h"
+
+
+
+
+#define AP_SSID "rfid_pi" 
+#define AP_PW "pimustdie" 
 
 #define BLINK_GPIO            10
 #define BLINK_DELAY           1000 // ms if using pdMS_TO_TICKS 
@@ -35,6 +50,25 @@
 #define OFF    0
 #define ON     1
 
+
+/* FreeRTOS event group to signal when we are connected & ready to make a request */
+static EventGroupHandle_t wifi_event_group;
+
+/* Constants that aren't configurable in menuconfig */
+#define WEB_SERVER "world.openfoodfacts.org"
+#define WEB_PORT "443"
+#define WEB_URL "https://world.openfoodfacts.org/api/v0/product/737628064502.json"
+static const char *TAG = "example";
+
+static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
+    "Host: "WEB_SERVER"\r\n"
+    "User-Agent: esp-idf/1.0 esp32\r\n"
+    "\r\n";
+
+
+extern const uint8_t server_root_cert_pem_start[] asm("_binary_server_root_cert_pem_start");
+extern const uint8_t server_root_cert_pem_end[]   asm("_binary_server_root_cert_pem_end");
+
 typedef struct{
   int level; 
   xQueueHandle cap_queue;
@@ -48,5 +82,6 @@ typedef struct {
 extern void blink_task(void *vpRFID_NODE);
 extern void input_capture_task(void *vpRFID_NODE);
 extern void init_mcpwm(RFID_NODE *pRFID_NODE);
+extern void https_get_task(void *vpRFID_NODE);
 
 #endif
