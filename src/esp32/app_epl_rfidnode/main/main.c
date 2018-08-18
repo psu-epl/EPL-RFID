@@ -44,7 +44,7 @@ static void app_init(void)
 {
   nvs_flash_init();
   init_pins();
-  init_wifi();
+ // init_wifi();
   init_mcpwm(&node);
 }
 
@@ -63,10 +63,10 @@ void app_main(void)
 		NULL
 	);
 //*/
-//*
+/*
   xTaskCreate(
 		&input_capture_task, 
-		"input_capture", 
+		"input_capture_task", 
 		configMINIMAL_STACK_SIZE, 
 		&node,//NULL, 
 		5, 
