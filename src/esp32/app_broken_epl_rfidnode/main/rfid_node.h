@@ -44,9 +44,10 @@ typedef struct {
   mcpwm_capture_signal_t sel_cap_signal;
 } capture;
 
-//xQueueHandle cap_queue;
-
-extern void gpio_test_signal(void *arg);
+extern void blink_task(void *vpRFID_NODE);
+extern void input_capture_task(void *vpRFID_NODE);
 extern void disp_captured_signal(void *arg);
-extern void mcpwm_example_config(void *arg);
+extern void mcpwm_config(RFID_NODE *pRFID_NODE);
+extern void gpio_test_signal(void *arg);
+
 #endif
