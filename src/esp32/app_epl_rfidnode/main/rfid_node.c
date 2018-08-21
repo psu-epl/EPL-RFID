@@ -106,7 +106,12 @@ extern void https_get_task(void *vpRFID_NODE)
             .cacert_pem_bytes = server_root_cert_pem_end - server_root_cert_pem_start,
         };
 
+
+        //Set Client own certifcate
+        
+
         struct esp_tls *tls = esp_tls_conn_http_new(WEB_URL, &cfg);
+        mbedtls_ssl_conf_authmode(&tls->conf, MBEDTLS_SSL_VERIFY_NONE);
 
         if(tls != NULL) {
             ESP_LOGI(TAG, "Connection established...");

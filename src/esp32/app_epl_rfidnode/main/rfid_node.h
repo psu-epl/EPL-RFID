@@ -55,9 +55,9 @@
 static EventGroupHandle_t wifi_event_group;
 
 /* Constants that aren't configurable in menuconfig */
-#define WEB_SERVER "world.openfoodfacts.org"
-#define WEB_PORT "443"
-#define WEB_URL "https://world.openfoodfacts.org/api/v0/product/737628064502.json"
+#define WEB_SERVER "192.168.1.149"
+#define WEB_PORT "3000"
+#define WEB_URL "https://192.168.1.149:3000/badgein"
 static const char *TAG = "example";
 
 static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"

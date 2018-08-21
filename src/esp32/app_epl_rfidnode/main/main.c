@@ -72,6 +72,10 @@ void app_main(void)
   app_init();
   node.cap_queue = xQueueCreate(1, sizeof(capture));
 
+
+ vTaskDelay(pdMS_TO_TICKS(BLINK_DELAY));
+
+
 //*
   xTaskCreate(
 		&blink_task,
