@@ -62,7 +62,7 @@ static void app_init(void)
   ESP_ERROR_CHECK( nvs_flash_init() );
   init_pins();
   init_wifi();
-  //init_mcpwm(&node);
+//  init_mcpwm(&node);
 }
 
 void app_main(void)
@@ -73,10 +73,10 @@ void app_main(void)
   node.cap_queue = xQueueCreate(1, sizeof(capture));
 
 
- vTaskDelay(pdMS_TO_TICKS(BLINK_DELAY));
+/// vTaskDelay(pdMS_TO_TICKS(5000));
 
 
-//*
+
   xTaskCreate(
 		&blink_task,
 		"blink_task",
@@ -85,8 +85,6 @@ void app_main(void)
 		5,
 		NULL
 	);
-//*/
-//*
   xTaskCreate(
 		&input_capture_task,
 		"input_capture",
