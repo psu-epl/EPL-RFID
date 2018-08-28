@@ -49,7 +49,7 @@ void app_main()
      */
     ledc_timer_config_t ledc_timer = {
         .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
-        .freq_hz = 120000,                      // frequency of PWM signal
+        .freq_hz = 5000,                      // frequency of PWM signal
         .speed_mode = LEDC_HIGH_SPEED_MODE,           // timer mode
         .timer_num = LEDC_TIMER            // timer index
     };
@@ -79,17 +79,17 @@ void app_main()
         };
 
 
-    ledc_channel_config(&ledc_channel);
-
+   ledc_channel_config(&ledc_channel);
+   ledc_set_duty(LEDC_HIGH_SPEED_MODE,LEDC_CHANNEL, 820);
+   ledc_update_duty(LEDC_HIGH_SPEED_MODE,LEDC_CHANNEL);
 
     while(1){
-        
-        ledc_set_duty(LEDC_HIGH_SPEED_MODE,LEDC_CHANNEL, 10);
-        ledc_update_duty(LEDC_HIGH_SPEED_MODE,LEDC_CHANNEL);
+
+     
         printf("1. LEDC duty cycle set to = %d\n", ledc_get_freq(LEDC_HIGH_SPEED_MODE,LEDC_TIMER) );
         printf("1. LEDC duty cycle set to = %d\n", ledc_get_duty(LEDC_HIGH_SPEED_MODE,LEDC_CHANNEL) );
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);        
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 
 
