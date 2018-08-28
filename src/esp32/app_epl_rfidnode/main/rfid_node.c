@@ -78,8 +78,8 @@ extern void mcpwm_example_config(void *arg)
   mcpwm_example_gpio_initialize();
 
   mcpwm_config_t pwm_config;
-  pwm_config.frequency = 1000;    //frequency = 1000Hz
-  pwm_config.cmpr_a = 50.0;       //duty cycle of PWMxA = 60.0%
+  pwm_config.frequency = 126000;    //frequency = 1000Hz
+  pwm_config.cmpr_a = 60.0;       //duty cycle of PWMxA = 60.0%
   pwm_config.counter_mode = MCPWM_UP_COUNTER;
   pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
   mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
