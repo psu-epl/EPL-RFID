@@ -4,7 +4,8 @@
 RFID_NODE rfid_node = { 0 };
 
 void app_init(){
-  mcpwm_example_config(&rfid_node);
+  input_capture_config(&rfid_node);
+  pwm_config(&rfid_node);
 }
 
 void app_main()

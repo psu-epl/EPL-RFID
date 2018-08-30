@@ -5,7 +5,6 @@ static mcpwm_dev_t *MCPWM[1] = {&MCPWM0};
 static void mcpwm_example_gpio_initialize()
 {
   mcpwm_pin_config_t pin_config = {
-    .mcpwm0a_out_num = GPIO_PWM0A_OUT,
     .mcpwm_cap0_in_num   = GPIO_CAP0_IN,
   };
   mcpwm_set_pin(MCPWM_UNIT_0, &pin_config);
@@ -73,20 +72,43 @@ static void IRAM_ATTR isr_handler(void *arg)
 /**
  * @brief Configure whole MCPWM module
  */
-extern void mcpwm_example_config(void *arg)
+extern void input_capture_config(void *arg)
 {
   mcpwm_example_gpio_initialize();
-
-  mcpwm_config_t pwm_config;
-  pwm_config.frequency = 126000;    //frequency = 1000Hz
-  pwm_config.cmpr_a = 60.0;       //duty cycle of PWMxA = 60.0%
-  pwm_config.counter_mode = MCPWM_UP_COUNTER;
-  pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-  mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
-  
   mcpwm_capture_enable(MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_POS_EDGE, 0);
   
   MCPWM[MCPWM_UNIT_0]->int_ena.val = CAP0_INT_EN;
   mcpwm_isr_register(MCPWM_UNIT_0, isr_handler, arg, ESP_INTR_FLAG_IRAM, NULL); 
-//  vTaskDelete(NULL);
+}
+
+extern void pwm_config(void *arg)
+{
+   int ch;
+
+   ledc_timer_config_t ledc_timer = {
+     .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
+     .freq_hz = 125e3,                      // frequency of PWM signal
+     .speed_mode = LEDC_HS_MODE,           // timer mode
+     .timer_num = LEDC_HS_TIMER            // timer index
+   };
+
+   ledc_timer_config(&ledc_timer);
+
+   ledc_channel_config_t ledc_channel[LEDC_TEST_CH_NUM] = {
+     {
+       .channel    = LEDC_HS_CH0_CHANNEL,
+       .duty       = LEDC_TEST_DUTY,
+       .gpio_num   = LEDC_HS_CH0_GPIO,
+       .speed_mode = LEDC_HS_MODE,
+       .intr_type = LEDC_INTR_DISABLE,
+       .timer_sel  = LEDC_HS_TIMER
+     },
+   };
+
+   for (ch = 0; ch < LEDC_TEST_CH_NUM; ch++) {
+     ledc_channel_config(&ledc_channel[ch]);
+   }
+
+   ledc_set_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel, LEDC_TEST_DUTY);
+   ledc_update_duty(ledc_channel[0].speed_mode, ledc_channel[0].channel);
 }

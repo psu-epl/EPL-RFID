@@ -10,11 +10,13 @@
 #include "esp_system.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
+#include "esp_attr.h"
+#include "esp_err.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
-#include "esp_attr.h"
-#include "soc/rtc.h"
 #include "driver/mcpwm.h"
+#include "driver/ledc.h"
+#include "soc/rtc.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
@@ -25,11 +27,18 @@
 #define BLINK_DELAY           1000 // ms if using pdMS_TO_TICKS 
 #define INPUT_CAPTURE_DELAY   100 // ms if using pdMS_TO_TICKS 
 
-#define CAP0_INT_EN BIT(27)  //Capture 0 interrupt bit
+#define CAP0_INT_EN           BIT(27)  //Capture 0 interrupt bit
 
-#define GPIO_PWM0A_OUT 19   //Set GPIO 19 as PWM0A
-#define GPIO_CAP0_IN   23   //Set GPIO 23 as  CAP0
-#define CAP_SIG_NUM     1
+#define GPIO_CAP0_IN          23   //Set GPIO 23 as  CAP0
+#define CAP_SIG_NUM           1
+
+#define LEDC_HS_TIMER         LEDC_TIMER_0
+#define LEDC_HS_MODE          LEDC_HIGH_SPEED_MODE
+#define LEDC_HS_CH0_GPIO      18
+#define LEDC_HS_CH0_CHANNEL   LEDC_CHANNEL_0
+
+#define LEDC_TEST_CH_NUM      1
+#define LEDC_TEST_DUTY        2
 
 #define OFF    0
 #define ON     1
@@ -48,5 +57,6 @@ typedef struct {
 
 extern void gpio_test_signal(void *arg);
 extern void disp_captured_signal(void *arg);
-extern void mcpwm_example_config(void *arg);
+extern void input_capture_config(void *arg);
+extern void pwm_config(void *arg);
 #endif
