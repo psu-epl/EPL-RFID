@@ -19,6 +19,7 @@
 #include "soc/rtc.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
+#include "xtensa/hal.h"
 
 #define AP_SSID "rfid_pi"
 #define AP_PW "pimustdie"
@@ -38,7 +39,8 @@
 #define LEDC_HS_CH0_CHANNEL   LEDC_CHANNEL_0
 
 #define LEDC_TEST_CH_NUM      1
-#define LEDC_TEST_DUTY        2
+#define LEDC_TEST_DUTY        4000
+//#define LEDC_TEST_DUTY        2
 
 #define OFF    0
 #define ON     1
