@@ -56,16 +56,20 @@ static EventGroupHandle_t wifi_event_group;
 
 /* Constants that aren't configurable in menuconfig */
 #define WEB_SERVER "localhost"
-#define WEB_SERVER_IP "192.168.0.14"
-#define WEB_PORT "3000"
-#define WEB_URL "https://192.168.0.14:3000/badgein"
+#define WEB_SERVER_IP "192.168.0.6"
+#define WEB_PORT "3001"
+#define WEB_URL "https://192.168.0.6:3001/api/user-access"
 
 static const char *TAG = "example";
 
-static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
+static const char *REQUEST = "POST " WEB_URL " HTTP/1.0\r\n"
     "Host: "WEB_SERVER"\r\n"
-    "User-Agent: esp-idf/1.0 esp32\r\n"
-    "\r\n";
+    "User-Agent: esp-idf 1.0 esp32\r\n"
+    "station-id: node4\r\n"
+    "station-state: Enabled\r\n"
+    "Content-Type: text/plain\r\n"
+    "\r\n"
+    "a\r\n";
 extern const uint8_t server_root_cert_pem_start[] asm("_binary_server_root_cert_pem_start");
 extern const uint8_t server_root_cert_pem_end[]   asm("_binary_server_root_cert_pem_end");
 
