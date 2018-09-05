@@ -12,24 +12,23 @@
 #include "esp_event_loop.h"
 #include "esp_attr.h"
 #include "esp_err.h"
+#include "esp_types.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "driver/mcpwm.h"
 #include "driver/ledc.h"
+#include "driver/periph_ctrl.h"
+#include "driver/timer.h"
 #include "soc/rtc.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
+#include "soc/timer_group_struct.h"
 #include "xtensa/hal.h"
 
 #define AP_SSID "rfid_pi"
 #define AP_PW "pimustdie"
 
-#define BLINK_GPIO            10
-#define BLINK_DELAY           1000 // ms if using pdMS_TO_TICKS 
-#define INPUT_CAPTURE_DELAY   100 // ms if using pdMS_TO_TICKS 
-
 #define CAP0_INT_EN           BIT(27)  //Capture 0 interrupt bit
-
 #define GPIO_CAP0_IN          23   //Set GPIO 23 as  CAP0
 #define CAP_SIG_NUM           1
 
@@ -42,11 +41,34 @@
 #define LEDC_TEST_DUTY        4000
 //#define LEDC_TEST_DUTY        2
 
+
+#define TIMER_DIVIDER         16  //  Hardware timer clock divider
+// convert counter value to seconds
+#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)
+#define TIMER_INTERVAL0_SEC   (3.0) // sample test interval for the first timer
+#define NO_RELOAD   0        // testing will be done without auto reload
+#define RELOAD      1        // testing will be done with auto reload
+
+typedef struct {
+    int type;  // the type of timer's event
+    int timer_group;
+    int timer_idx;
+    uint64_t timer_counter_value;
+}timer_event_t;
+
+typedef struct {
+  int timer_idx;
+  bool auto_reload;
+  double timer_interval_sec;
+  xQueueHandle timer_queue;
+}rfid_timer_t;
+
 #define OFF    0
 #define ON     1
 
 typedef struct{
-  int level; 
+  int level;
+  rfid_timer_t timer;
   xQueueHandle cap_queue;
 }RFID_NODE;
 
@@ -57,7 +79,8 @@ typedef struct {
 
 //xQueueHandle cap_queue;
 
-extern void gpio_test_signal(void *arg);
+//extern void timer_init(int timer_idx,bool auto_reload, double timer_interval_sec);
+extern void rfid_timer_init(rfid_timer_t *timer);
 extern void disp_captured_signal(void *arg);
 extern void input_capture_config(void *arg);
 extern void pwm_config(void *arg);
