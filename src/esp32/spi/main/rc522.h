@@ -94,3 +94,11 @@
 
 void write_out(uint8_t add, uint8_t data);
 uint8_t read_reg(uint8_t add);
+
+void set_bits(uint8_t reg, uint8_t mask);
+void clear_bits(uint8_t reg, uint8_t mask);
+
+void RC522_reset();
+void RC522_init();
+
+
