@@ -71,12 +71,12 @@ void write_reg(uint8_t add, uint8_t data)
 }
 
 void write_reg_array(uint8_t add, uint8_t *data, uint8_t data_len)
-{
+{ 
     esp_err_t ret;
     spi_transaction_t t;
     memset(&t, 0, sizeof(t)); //Zero out the transaction
     t.addr = add << 1;        //MSB == 0 is for writing from Datasheet section 8.1.2.3.
-    t.tx_buffer = (void *)&data;
+    t.tx_buffer = (void *)data;
     t.length = 8 * data_len;            //This is the length of the tx_buffer in bits
     ret = spi_device_transmit(spi, &t); //Transmit!
     assert(ret == ESP_OK);              //Should have had no issues.
@@ -170,7 +170,7 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
     write_reg(CommandReg, PCD_IDLE);                      // Stop any active command.
     write_reg(ComIrqReg, 0x7F);                           // Clear all seven interrupt request bits
     write_reg(FIFOLevelReg, 0x80);                        // FlushBuffer = 1, FIFO initialization  
-    write_reg(FIFODataReg, data_out[0]); //Write data to FIFO
+    write_reg_array(FIFODataReg, data_out,data_out_len);   //Write data to FIFO
     set_bits(BitFramingReg, tx_last_bits);                // Set the number of bits to be transmitted for the last command
     write_reg(CommandReg, command);                       //Execute the command
     
@@ -178,10 +178,10 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
     if (command == PCD_TRANSCEIVE) //Start transmission of transceive see 9.3.1.14
         set_bits(BitFramingReg, 0x80);
 
-    vTaskDelay(30 / portTICK_PERIOD_MS); //Sleep for 40 ms for the data to be sent out
-
-    uint8_t status = read_reg(ComIrqReg);
-
+    uint8_t status = read_reg(ComIrqReg); 
+    while(!(status & 0x01) && !(status & irq))   //Spin until we get a timeout or the irq happens
+        status = read_reg(ComIrqReg); 
+    
     if ((status & 0x01) && !(status & irq)) //Check if a timeout happened from the timer and the waiting IRQ didn't happen
         return STATUS_TIMEOUT;
    
