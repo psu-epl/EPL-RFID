@@ -14,3 +14,25 @@ Here are links to the previous repos:
 ### EPL RFID:
 #### Repo: https://github.com/Crimson89/RFID-Capstone
 #### Wiki: https://github.com/Crimson89/RFID-Capstone/wiki
+
+# Building ESP-IDF toolchain and environment
+From a linux console type the following commands:   
+
+git clone https://github.com/psu-epl/EPL-RFID.git  
+cd EPL-RFID  
+git submodule update --init  
+
+Then follow "the Setting Up ESP-IDF" directions here: https://github.com/espressif/esp-idf  
+
+This involves lots of building packages from source. You likely don't want to do this very many times.
+
+make sure you edit your PATH variable in your ~/.bashrc to something similar to:
+
+export IDF_PATH=~/path/to/submodule/esp-idf  
+export PATH=$PATH:/home/chad/path/to/binaries/xtensa-esp32-elf/bin:/home/chad/path/to/binaries/crosstool-NG/builds/xtensa-esp32-elf/bin/
+
+Bad things happen when you are following the wrong path...
+
+Focus your chi using "echo $PATH"
+
+Code to victory brave warrior!
