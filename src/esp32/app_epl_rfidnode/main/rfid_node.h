@@ -73,7 +73,8 @@ typedef struct{
 }RFID_NODE;
 
 typedef struct {
-  uint32_t capture_signal;
+  //uint32_t capture_signal;
+  uint64_t capture_signal;
   mcpwm_capture_signal_t sel_cap_signal;
 } capture;
 

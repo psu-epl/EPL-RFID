@@ -1,4 +1,5 @@
 #include "rfid_node.h"
+#include <inttypes.h>
 
 //static mcpwm_dev_t *MCPWM[1] = {&MCPWM0};
 static mcpwm_dev_t *pMCPWM = &MCPWM0;
@@ -17,8 +18,10 @@ static void mcpwm_gpio_initialize()
  */
 extern void disp_captured_signal(void *arg)
 {
-  uint32_t current_cap_value = 0;
-  uint32_t previous_cap_value = 0;
+  //uint32_t current_cap_value = 0;
+  //uint32_t previous_cap_value = 0;
+  uint64_t current_cap_value = 0;
+  uint64_t previous_cap_value = 0;
   capture evt;
   while (1) {
     xQueueReceive(((RFID_NODE *)arg)->cap_queue, &evt, portMAX_DELAY);
@@ -27,7 +30,7 @@ extern void disp_captured_signal(void *arg)
       previous_cap_value = evt.capture_signal;
       current_cap_value = 
         (current_cap_value / 10000) * (10000000000 / rtc_clk_apb_freq_get());
-      printf("CAP0 : %d us\n", current_cap_value);
+      printf("CAP0 : %" PRIu64 " us \n", current_cap_value);
     }
   }
 }
@@ -38,7 +41,7 @@ extern void disp_captured_signal(void *arg)
 static void IRAM_ATTR isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
-  uint64_t timer_value = 0;
+//  uint64_t timer_value = 0;
   capture evt;
   mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
   //Check for interrupt on rising edge on CAP0 signal
@@ -51,11 +54,13 @@ static void IRAM_ATTR isr_handler(void *arg)
     timer_get_counter_value(
       TIMER_GROUP_0,
       ((RFID_NODE*)arg)->timer.timer_idx,
-      &timer_value
+      //&timer_value
+      &evt.capture_signal
     );
 
     xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
   }
+  //TIMERG0.int_clr_timers.t0 = 1; // TODO: figure out timer reset
   pMCPWM->int_clr.val = mcpwm_intr_status;
 }
 
