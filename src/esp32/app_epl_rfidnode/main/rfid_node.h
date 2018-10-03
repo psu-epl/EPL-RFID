@@ -41,7 +41,6 @@
 #define LEDC_TEST_DUTY        4000
 //#define LEDC_TEST_DUTY        2
 
-
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 // convert counter value to seconds
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)
@@ -50,10 +49,10 @@
 #define RELOAD      1        // testing will be done with auto reload
 
 typedef struct {
-    int type;  // the type of timer's event
-    int timer_group;
-    int timer_idx;
-    uint64_t timer_counter_value;
+  int type;  // the type of timer's event
+  int timer_group;
+  int timer_idx;
+  uint64_t timer_counter_value;
 }timer_event_t;
 
 typedef struct {

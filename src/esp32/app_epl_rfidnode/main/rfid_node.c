@@ -28,7 +28,14 @@ extern void disp_captured_signal(void *arg)
     if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) {
       current_cap_value = evt.capture_signal - previous_cap_value;
       previous_cap_value = evt.capture_signal;
+      // something is likely fucked here!!!!!!!!!!!!!!!!!!!!!!!!!!!
       current_cap_value = 
+        // so if system ticks are 1ms WTF!!!! then rtc_clk_apb_freq_get()
+        // is garbage because it is based off system ticks and we are 
+        // actually working directly with the hardware. there may also be 
+        // issues using uint64_t because the MCU is cool with this but
+        // FreeRTOS maybe no
+        // also i may have had too many beers
         (current_cap_value / 10000) * (10000000000 / rtc_clk_apb_freq_get());
       printf("CAP0 : %" PRIu64 " us \n", current_cap_value);
     }

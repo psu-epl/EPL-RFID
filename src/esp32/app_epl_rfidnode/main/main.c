@@ -10,6 +10,7 @@ void app_init(){
   //rfid_node.timer.timer_queue = xQueueCreate(10, sizeof(timer_event_t));
   rfid_node.timer.timer_idx = TIMER_0;
   rfid_node.timer.auto_reload = RELOAD; 
+  //rfid_node.timer.auto_reload = RELOAD; 
   rfid_node.timer.timer_interval_sec = TIMER_INTERVAL0_SEC;
   rfid_node.timer.timer_queue = xQueueCreate(10, sizeof(timer_event_t));
   rfid_timer_init(&rfid_node.timer);
