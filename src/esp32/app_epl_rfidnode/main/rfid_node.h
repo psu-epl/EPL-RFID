@@ -41,7 +41,11 @@
 #define LEDC_TEST_DUTY        4000
 //#define LEDC_TEST_DUTY        2
 
-#define TIMER_DIVIDER         16  //  Hardware timer clock divider
+//#define TIMER_DIVIDER         16  //  Hardware timer clock divider
+//
+// Setting this to 80 means when we divide the system clock by the 
+// divider we should have 1us ticks to count (80x10^6Hz/80) = 1MHz -> 1us period
+#define TIMER_DIVIDER         80  //  Hardware timer clock divider
 // convert counter value to seconds
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)
 #define TIMER_INTERVAL0_SEC   (3.0) // sample test interval for the first timer
