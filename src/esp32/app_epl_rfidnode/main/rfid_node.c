@@ -2,8 +2,8 @@
 #include <inttypes.h>
 
 static uint64_t count = 0;
+static const uint64_t xqueue_skipped = 1000;
 
-//static mcpwm_dev_t *MCPWM[1] = {&MCPWM0};
 static mcpwm_dev_t *pMCPWM = &MCPWM0;
 
 static void mcpwm_gpio_initialize()
@@ -22,21 +22,16 @@ extern void disp_captured_signal(void *arg)
 {
   uint64_t current_cap_value = 0;
   uint64_t previous_cap_value = 0;
-  int i = 0;
   capture evt;
   while (1) {
-    //*
+//*
     xQueueReceive(((RFID_NODE *)arg)->cap_queue, &evt, portMAX_DELAY);
     if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) {
       current_cap_value = evt.capture_signal - previous_cap_value;
       previous_cap_value = evt.capture_signal;
-   //   if(i == 1000){
-      printf("CAP0 : %" PRIu64 "  \n", current_cap_value);
-    //    i = 0;
-    //  }
+      printf("CAP0 : %" PRIu64 "us \n", current_cap_value/xqueue_skipped);
     }
-   // ++i;
-    //*/
+//*/
   }
 }
 
@@ -57,7 +52,7 @@ static void IRAM_ATTR isr_handler(void *arg)
       //&timer_value
       &evt.capture_signal
     );
-    if(count == 1000){
+    if(count == xqueue_skipped){
       xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
       count=0;
     }
