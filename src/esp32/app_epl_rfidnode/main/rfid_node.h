@@ -38,7 +38,8 @@
 #define LEDC_HS_CH0_CHANNEL   LEDC_CHANNEL_0
 
 #define LEDC_TEST_CH_NUM      1
-#define LEDC_TEST_DUTY        4000
+//#define LEDC_TEST_DUTY        4000
+//#define LEDC_TEST_DUTY        6400 
 //#define LEDC_TEST_DUTY        2
 
 //#define TIMER_DIVIDER         16  //  Hardware timer clock divider

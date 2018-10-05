@@ -1,6 +1,8 @@
 #include "rfid_node.h"
 #include <inttypes.h>
 
+static uint64_t count = 0;
+
 //static mcpwm_dev_t *MCPWM[1] = {&MCPWM0};
 static mcpwm_dev_t *pMCPWM = &MCPWM0;
 
@@ -18,27 +20,23 @@ static void mcpwm_gpio_initialize()
  */
 extern void disp_captured_signal(void *arg)
 {
-  //uint32_t current_cap_value = 0;
-  //uint32_t previous_cap_value = 0;
   uint64_t current_cap_value = 0;
   uint64_t previous_cap_value = 0;
+  int i = 0;
   capture evt;
   while (1) {
+    //*
     xQueueReceive(((RFID_NODE *)arg)->cap_queue, &evt, portMAX_DELAY);
     if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) {
       current_cap_value = evt.capture_signal - previous_cap_value;
       previous_cap_value = evt.capture_signal;
-      // something is likely fucked here!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      current_cap_value = 
-        // so if system ticks are 1ms WTF!!!! then rtc_clk_apb_freq_get()
-        // is garbage because it is based off system ticks and we are 
-        // actually working directly with the hardware. there may also be 
-        // issues using uint64_t because the MCU is cool with this but
-        // FreeRTOS maybe no
-        // also i may have had too many beers
-        (current_cap_value / 10000) * (10000000000 / rtc_clk_apb_freq_get());
-      printf("CAP0 : %" PRIu64 " us \n", current_cap_value);
+   //   if(i == 1000){
+      printf("CAP0 : %" PRIu64 "  \n", current_cap_value);
+    //    i = 0;
+    //  }
     }
+   // ++i;
+    //*/
   }
 }
 
@@ -48,24 +46,22 @@ extern void disp_captured_signal(void *arg)
 static void IRAM_ATTR isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
-//  uint64_t timer_value = 0;
+  //  uint64_t timer_value = 0;
   capture evt;
   mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
   //Check for interrupt on rising edge on CAP0 signal
   if (mcpwm_intr_status & CAP0_INT_EN) {     
-   /* 
-    evt.capture_signal = 
-      mcpwm_capture_signal_get_value(MCPWM_UNIT_0, MCPWM_SELECT_CAP0);     
-    evt.sel_cap_signal = MCPWM_SELECT_CAP0;
-   //*/
     timer_get_counter_value(
       TIMER_GROUP_0,
       ((RFID_NODE*)arg)->timer.timer_idx,
       //&timer_value
       &evt.capture_signal
     );
-
-    xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
+    if(count == 1000){
+      xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
+      count=0;
+    }
+    ++count;
   }
   //TIMERG0.int_clr_timers.t0 = 1; // TODO: figure out timer reset
   pMCPWM->int_clr.val = mcpwm_intr_status;
@@ -85,26 +81,51 @@ extern void input_capture_config(void *arg)
 
 extern void pwm_config(void *arg)
 {
+  uint32_t ledc_test_duty = 0; 
+//*
+  ledc_test_duty = 640;
+  ledc_timer_config_t ledc_timer = {
+    .duty_resolution = LEDC_TIMER_9_BIT, // resolution of PWM duty
+    .freq_hz = 125e3,                      // frequency of PWM signal
+    .speed_mode = LEDC_HS_MODE,           // timer mode
+    .timer_num = LEDC_HS_TIMER            // timer index
+  };
+//*/
 /*
-   ledc_timer_config_t ledc_timer = {
-     .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
-     .freq_hz = 125e3,                      // frequency of PWM signal
+  ledc_test_duty = 4000;
+  ledc_timer_config_t ledc_timer = {
+     .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+     .freq_hz = 50,                        // frequency of PWM signal
      .speed_mode = LEDC_HS_MODE,           // timer mode
      .timer_num = LEDC_HS_TIMER            // timer index
    };
 //*/
+/*
+  ledc_test_duty = 6400;
   ledc_timer_config_t ledc_timer = {
-     .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
-     .freq_hz = 50,                      // frequency of PWM signal
+     //.duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+     .duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
+     .freq_hz = 12500,                      // frequency of PWM signal
      .speed_mode = LEDC_HS_MODE,           // timer mode
      .timer_num = LEDC_HS_TIMER            // timer index
    };
+//*/
+/*
+  ledc_test_duty = 5120;
+  ledc_timer_config_t ledc_timer = {
+     //.duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+     .duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
+     .freq_hz = 15625,                      // frequency of PWM signal
+     .speed_mode = LEDC_HS_MODE,           // timer mode
+     .timer_num = LEDC_HS_TIMER            // timer index
+   };
+//*/
 
    ledc_timer_config(&ledc_timer);
 
    ledc_channel_config_t ledc_channel = {
      .channel    = LEDC_HS_CH0_CHANNEL,
-     .duty       = LEDC_TEST_DUTY,
+     .duty       = ledc_test_duty, //LEDC_TEST_DUTY,
      .gpio_num   = LEDC_HS_CH0_GPIO,
      .speed_mode = LEDC_HS_MODE,
      .intr_type = LEDC_INTR_DISABLE,
@@ -113,7 +134,7 @@ extern void pwm_config(void *arg)
 
    ledc_channel_config(&ledc_channel);
 
-   ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, LEDC_TEST_DUTY);
+   ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel,ledc_test_duty);
    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
 }
 
