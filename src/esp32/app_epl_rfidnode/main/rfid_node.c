@@ -77,39 +77,45 @@ extern void input_capture_config(void *arg)
 extern void pwm_config(void *arg)
 {
   uint32_t ledc_test_duty = 0; 
-//*
-  ledc_test_duty = 640;
+/*
+  //ledc_test_duty = 640;
+  ledc_test_duty = 2;
   ledc_timer_config_t ledc_timer = {
-    .duty_resolution = LEDC_TIMER_9_BIT, // resolution of PWM duty
+    .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
+    //.duty_resolution = LEDC_TIMER_9_BIT, // resolution of PWM duty
     .freq_hz = 125e3,                      // frequency of PWM signal
     .speed_mode = LEDC_HS_MODE,           // timer mode
     .timer_num = LEDC_HS_TIMER            // timer index
   };
 //*/
-/*
-  ledc_test_duty = 4000;
+//*
+  ledc_test_duty = 2;
+  //ledc_test_duty = 4000;
   ledc_timer_config_t ledc_timer = {
-     .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+     .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
+     //.duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
      .freq_hz = 50,                        // frequency of PWM signal
      .speed_mode = LEDC_HS_MODE,           // timer mode
      .timer_num = LEDC_HS_TIMER            // timer index
    };
 //*/
 /*
-  ledc_test_duty = 6400;
+  //ledc_test_duty = 6400;
+  ledc_test_duty = 2;
   ledc_timer_config_t ledc_timer = {
-     //.duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
-     .duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
+     .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
+     //.duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
      .freq_hz = 12500,                      // frequency of PWM signal
      .speed_mode = LEDC_HS_MODE,           // timer mode
      .timer_num = LEDC_HS_TIMER            // timer index
    };
 //*/
 /*
-  ledc_test_duty = 5120;
+  ledc_test_duty = 2;
+  //ledc_test_duty = 5120;
   ledc_timer_config_t ledc_timer = {
-     //.duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
-     .duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
+     //.duty_resolution = LEDC_TIMER_12_BIT, // resolution of PWM duty
+     .duty_resolution = LEDC_TIMER_2_BIT, // resolution of PWM duty
      .freq_hz = 15625,                      // frequency of PWM signal
      .speed_mode = LEDC_HS_MODE,           // timer mode
      .timer_num = LEDC_HS_TIMER            // timer index
