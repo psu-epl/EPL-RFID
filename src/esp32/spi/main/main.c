@@ -35,17 +35,13 @@ void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     RC522_init();
-    uint8_t bufferATQA[3] = {0, 0, 0};
-    uint8_t bufferSize = sizeof(bufferATQA);
-    uint8_t result;
-
     while (1)
     {
-        bufferSize = 3;
-        result = RC522_REQA_or_WUPA(PICC_CMD_REQA, &bufferATQA, &bufferSize);
-        if (result == STATUS_OK || result == STATUS_COLLISION)
+        if (RC522_read_card_uid() == STATUS_OK)
+        {
             ESP_LOGW(READER13, "Card detected!!!");
-        
+        }
+
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
@@ -71,7 +67,7 @@ void write_reg(uint8_t add, uint8_t data)
 }
 
 void write_reg_array(uint8_t add, uint8_t *data, uint8_t data_len)
-{ 
+{
     esp_err_t ret;
     spi_transaction_t t;
     memset(&t, 0, sizeof(t)); //Zero out the transaction
@@ -147,44 +143,77 @@ void RC522_init()
     ESP_LOGI(READER13, "Done Initializing");
 }
 
-uint8_t RC522_REQA_or_WUPA(uint8_t card_command, uint8_t *bufferATQA, uint8_t *bufferSize)
+bool RC522_detect_card()
 {
-    uint8_t status;
-    if (bufferATQA == NULL || *bufferSize < 2)
-        return STATUS_NO_ROOM;
+    uint8_t bufferATQA[2] = {0, 0};
+    uint8_t bufferSize = sizeof(bufferATQA);
+    uint8_t result;
 
-    clear_bits(CollReg, 0x80); // ValuesAfterColl=1 => Bits received after collision are cleared.
-    status = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &card_command, 1, bufferATQA, bufferSize, 7);
-    if (status != STATUS_OK)
-        return status;
+    bufferSize = 3;
+    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, &bufferATQA, &bufferSize);
+    if (result == STATUS_OK || result == STATUS_COLLISION)
+        return true;
 
-    if (*bufferSize > 2) // ATQA must be exactly 16 bits.
-        return STATUS_ERROR;
+    return false;
+}
 
+uint8_t RC522_read_card_uid()
+{
+    uint8_t buffer[20];
+    uint8_t bufferSize = sizeof(buffer);
+    memset(&buffer, 0, bufferSize);  
+    uint8_t result;
+    uint8_t anticoll_loop_max = 32; // max 32 bits (ISo standard)
+
+    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, &buffer, &bufferSize);
+    if (result != STATUS_OK && result != STATUS_COLLISION)
+        return result;
+    ESP_LOGI(READER13, "buffer 0 [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+
+    write_reg(BitFramingReg, 0x00);
+    clear_bits(CollReg, 0x80); // ValuesAfterColl=1 Bits received after collision are cleared.
+
+
+    buffer[0] = PICC_CMD_SEL_CL1;
+    buffer[1] =0x20;
+    result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &buffer, 2, &buffer, bufferSize, 0);
+    ESP_LOGE(READER13, "resutl %x ",result);
+
+    if (result != STATUS_OK && result != STATUS_COLLISION)
+        return result;
+
+    ESP_LOGI(READER13, "buffer [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+
+    //ESP_LOGI(READER13, "Lower bye %x",bufferATQA[0]);
+    // ESP_LOGI(READER13, "higher bye %x",bufferATQA[1]);
+
+    uint8_t uid_size = buffer[0] >> 6;
     return STATUS_OK;
 }
+
 
 uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_out, uint8_t data_out_len, uint8_t *data_in, uint8_t *data_in_len, uint8_t tx_last_bits)
 {
 
     write_reg(CommandReg, PCD_IDLE);                      // Stop any active command.
     write_reg(ComIrqReg, 0x7F);                           // Clear all seven interrupt request bits
-    write_reg(FIFOLevelReg, 0x80);                        // FlushBuffer = 1, FIFO initialization  
-    write_reg_array(FIFODataReg, data_out,data_out_len);   //Write data to FIFO
-    set_bits(BitFramingReg, tx_last_bits);                // Set the number of bits to be transmitted for the last command
+    write_reg(FIFOLevelReg, 0x80);                        // FlushBuffer = 1, FIFO initialization
+    write_reg_array(FIFODataReg, data_out, data_out_len); //Write data to FIFO
+    tx_last_bits == 0? clear_bits(BitFramingReg,0x7) : write_reg(BitFramingReg, tx_last_bits);                // Set the number of bits to be transmitted for the last command
     write_reg(CommandReg, command);                       //Execute the command
-    
 
     if (command == PCD_TRANSCEIVE) //Start transmission of transceive see 9.3.1.14
         set_bits(BitFramingReg, 0x80);
 
-    uint8_t status = read_reg(ComIrqReg); 
-    while(!(status & 0x01) && !(status & irq))   //Spin until we get a timeout or the irq happens
-        status = read_reg(ComIrqReg); 
-    
+    uint8_t status = read_reg(ComIrqReg);
+    while (!(status & 0x01) && !(status & irq)) //Spin until we get a timeout or the irq happens
+        status = read_reg(ComIrqReg);
+
+   //ESP_LOGE(READER13, "ErrorReg %x ",read_reg(ErrorReg));    
+
     if ((status & 0x01) && !(status & irq)) //Check if a timeout happened from the timer and the waiting IRQ didn't happen
-        return STATUS_TIMEOUT;
-   
+      return STATUS_TIMEOUT;
+
     uint8_t error_code = read_reg(ErrorReg);
     if (error_code & 0x13)
         return STATUS_ERROR;
@@ -195,11 +224,32 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
         uint8_t len = read_reg(FIFOLevelReg);
 
         *data_in_len = len;
-        read_reg_array(FIFODataReg, data_in, len);
+        for (int i = 0; i < len; ++i)
+        {
+            data_in[i] = read_reg(FIFODataReg);
+        }
     }
 
     if (error_code & 0x08) // Check if bit collisions  CollErr
         return STATUS_COLLISION;
+
+    return STATUS_OK;
+}
+
+
+uint8_t RC522_REQA_or_WUPA(uint8_t card_command, uint8_t *bufferATQA, uint8_t *bufferSize)
+{
+    uint8_t status;
+    if (bufferATQA == NULL || *bufferSize < 2)
+        return STATUS_NO_ROOM;
+
+    clear_bits(CollReg, 0x80); // ValuesAfterColl=1 Bits received after collision are cleared.
+    status = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &card_command, 1, bufferATQA, bufferSize, 7);
+    if (status != STATUS_OK)
+        return status;
+
+    if (*bufferSize > 2) // ATQA must be exactly 16 bits.
+        return STATUS_ERROR;
 
     return STATUS_OK;
 }

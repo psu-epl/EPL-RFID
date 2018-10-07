@@ -135,6 +135,9 @@ void read_reg_array(uint8_t add, uint8_t *data, uint8_t data_len);
 void set_bits(uint8_t reg, uint8_t mask);
 void clear_bits(uint8_t reg, uint8_t mask);
 
+bool RC522_detect_card();
+uint8_t RC522_read_card_uid();
+
 uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_out, uint8_t data_out_len, uint8_t *data_in, uint8_t *data_in_len, uint8_t tx_last_bits);
 uint8_t RC522_REQA_or_WUPA(uint8_t card_command, uint8_t *bufferATQA, uint8_t *bufferSize);
 void RC522_antenna_on();
