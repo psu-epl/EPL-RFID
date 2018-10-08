@@ -53,32 +53,38 @@
 #define NO_RELOAD   0        // testing will be done without auto reload
 #define RELOAD      1        // testing will be done with auto reload
 
-typedef struct {
+typedef struct 
+{
   int type;  // the type of timer's event
   int timer_group;
   int timer_idx;
   uint64_t timer_counter_value;
-}timer_event_t;
+} timer_event_t;
 
-typedef struct {
+typedef struct 
+{
   int timer_idx;
   bool auto_reload;
   double timer_interval_sec;
   xQueueHandle timer_queue;
-}rfid_timer_t;
+} rfid_timer_t;
 
 #define OFF    0
 #define ON     1
 
-typedef struct{
+typedef struct
+{
   int level;
   rfid_timer_t timer;
+  uint32_t capture_buffer;
   xQueueHandle cap_queue;
-}RFID_NODE;
+} RFID_NODE;
 
-typedef struct {
+typedef struct 
+{
   //uint32_t capture_signal;
   uint64_t capture_signal;
+  uint32_t capture_buffer;
   mcpwm_capture_signal_t sel_cap_signal;
 } capture;
 
@@ -89,4 +95,5 @@ extern void rfid_timer_init(rfid_timer_t *timer);
 extern void disp_captured_signal(void *arg);
 extern void input_capture_config(void *arg);
 extern void pwm_config(void *arg);
+
 #endif
