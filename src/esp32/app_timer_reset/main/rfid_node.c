@@ -34,7 +34,8 @@ extern void disp_captured_signal(void *arg)
     //  printf("CAP0 : %" PRIu64 "us \n", current_cap_value/xqueue_skipped);
       //printf("CAP0 : %" PRIu64 "us \n", evt.capture_signal);
       //printf("CAP0 : %" PRIu64 "us \n", evt.capture_buffer);
-      printf("CAP0 : %X us \n", evt.capture_buffer);
+      printf("CAP0 : %" PRIu64 "us, %08X us \n", evt.capture_signal,evt.capture_buffer);
+      //printf("CAP0 : %X us \n", evt.capture_buffer);
     }
 //*/
   }
@@ -46,10 +47,11 @@ extern void disp_captured_signal(void *arg)
 static void IRAM_ATTR timeout_isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
-  //  uint64_t timer_value = 0;
-  capture evt;
-  mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
-  //Check for interrupt on rising edge on CAP0 signal
+  capture evt = { 0 };
+  
+	mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
+  
+	//Check for interrupt on rising edge on CAP0 signal
   if (mcpwm_intr_status & CAP0_INT_EN) 
   {     
     timer_get_counter_value(
@@ -58,36 +60,32 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
       &evt.capture_signal
     );
     
-    if(evt.capture_signal > 76 && evt.capture_signal < 84)
+    if(evt.capture_signal > 75 && evt.capture_signal < 85)
     {
-      ((RFID_NODE *)arg)->capture_buffer <<= 0x1;
+			((RFID_NODE *)arg)->capture_buffer |= 0x1;
     }
-    else
-    {
-      ((RFID_NODE *)arg)->capture_buffer <<= 0x0;
-    }
-
-    /*
-    if(count == xqueue_skipped)
-    {
-      xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
-      count=0;
-    }
-    //*/
-    ++count;
-    if(count == 32)
+    
+		if(count > 31)
     {
       evt.capture_buffer = ((RFID_NODE *)arg)->capture_buffer;
-      ((RFID_NODE *)arg)->capture_buffer = 1;
+      ((RFID_NODE *)arg)->capture_buffer = 0x0;
       xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
       count = 0;
     }
+		else
+		{
+    	++count;
+		}
+
+   	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
   }
+
   timer_set_counter_value(
     TIMER_GROUP_0,
     ((RFID_NODE*)arg)->timer.timer_idx,
     0u 
   );
+
   pMCPWM->int_clr.val = mcpwm_intr_status;
 }
 
