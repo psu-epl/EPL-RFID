@@ -21,8 +21,8 @@ static void mcpwm_gpio_initialize()
  */
 extern void disp_captured_signal(void *arg)
 {
-  uint64_t current_cap_value = 0;
-  uint64_t previous_cap_value = 0;
+//  uint64_t current_cap_value = 0;
+//  uint64_t previous_cap_value = 0;
   capture evt;
   while (1)
   {
@@ -64,6 +64,23 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
     {
 			((RFID_NODE *)arg)->capture_buffer |= 0x1;
     }
+    else if(evt.capture_signal > 59 && evt.capture_signal < 69)
+    {
+      // wow this does nothing....
+      // but it's correct... or is in?....
+      // o_0 **** rethink this
+      // the algorithm needs to be reworked completely
+      // it is implicitly zero anyway because of the <<=
+      // later on...
+      // interesting i'll bet the aggregate evaluates
+      // to something very simple. might even be able to
+      // get tricky
+			((RFID_NODE *)arg)->capture_buffer |= 0x0;
+    }
+    else
+    {
+      goto EXIT_ISR;
+    }
     
 		if(count > 31)
     {
@@ -77,8 +94,11 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
     	++count;
 		}
 
+    // hmmmmmmmmmm
    	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
   }
+
+EXIT_ISR:
 
   timer_set_counter_value(
     TIMER_GROUP_0,
@@ -149,7 +169,7 @@ extern void pwm_config(void *arg)
     .duty       = ledc_test_duty, //LEDC_TEST_DUTY,
     .gpio_num   = LEDC_HS_CH0_GPIO,
     .speed_mode = LEDC_HS_MODE,
-    .intr_type = LEDC_INTR_DISABLE,
+    .intr_type  = LEDC_INTR_DISABLE,
     .timer_sel  = LEDC_HS_TIMER
   };
 
