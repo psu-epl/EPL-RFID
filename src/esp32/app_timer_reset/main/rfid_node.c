@@ -31,22 +31,29 @@ extern void disp_captured_signal(void *arg)
     if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) {
   //    current_cap_value = evt.capture_signal - previous_cap_value;
    //   previous_cap_value = evt.capture_signal;
-    //  printf("CAP0 : %" PRIu64 "us \n", current_cap_value/xqueue_skipped);
-      //printf("CAP0 : %" PRIu64 "us \n", evt.capture_signal);
-      //printf("CAP0 : %" PRIu64 "us \n", evt.capture_buffer);
-      printf("CAP0 : %" PRIu64 "us, %08X us \n", evt.capture_signal,evt.capture_buffer);
-      //printf("CAP0 : %X us \n", evt.capture_buffer);
+    //printf("CAP0 : %" PRIu64 "us, %08X us \n", evt.capture_signal,evt.capture_buffer);
+      printf("buffer : %08X \n", evt.capture_buffer);
+    //*
+      timer_set_counter_value(
+        TIMER_GROUP_0,
+        ((RFID_NODE*)arg)->timer.timer_idx,
+        0u 
+      );
+    //*/
+
     }
 //*/
   }
 }
 
+static uint64_t previous_cap_value = 0;
 /**
  * @brief this is ISR handler function, 
  */
 static void IRAM_ATTR timeout_isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
+  uint64_t current_cap_value = 0;
   capture evt = { 0 };
   
 	mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
@@ -60,28 +67,26 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
       &evt.capture_signal
     );
     
-    if(evt.capture_signal > 75 && evt.capture_signal < 85)
+    current_cap_value = evt.capture_signal - previous_cap_value;
+    previous_cap_value = evt.capture_signal;
+    if(current_cap_value > 76 && current_cap_value < 78)
+    //if(evt.capture_signal > 76 && evt.capture_signal < 78)
     {
+    	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
 			((RFID_NODE *)arg)->capture_buffer |= 0x1;
     }
-    else if(evt.capture_signal > 59 && evt.capture_signal < 69)
+    else if(current_cap_value > 62 && current_cap_value < 64)
+    //else if(evt.capture_signal > 62 && evt.capture_signal < 64)
     {
-      // wow this does nothing....
-      // but it's correct... or is in?....
       // o_0 **** rethink this
-      // the algorithm needs to be reworked completely
-      // it is implicitly zero anyway because of the <<=
-      // later on...
-      // interesting i'll bet the aggregate evaluates
-      // to something very simple. might even be able to
-      // get tricky
-			((RFID_NODE *)arg)->capture_buffer |= 0x0;
-    }
+     	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
+    }//*
     else
     {
+      // bail out
       goto EXIT_ISR;
     }
-    
+    //*/
 		if(count > 31)
     {
       evt.capture_buffer = ((RFID_NODE *)arg)->capture_buffer;
@@ -93,19 +98,16 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
 		{
     	++count;
 		}
-
-    // hmmmmmmmmmm
-   	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
   }
 
 EXIT_ISR:
-
+/*
   timer_set_counter_value(
     TIMER_GROUP_0,
     ((RFID_NODE*)arg)->timer.timer_idx,
     0u 
   );
-
+//*/
   pMCPWM->int_clr.val = mcpwm_intr_status;
 }
 
@@ -124,7 +126,7 @@ extern void input_capture_config(void *arg)
 extern void pwm_config(void *arg)
 {
   uint32_t ledc_test_duty = 2; 
-/*
+//*
   ledc_timer_config_t ledc_timer = 
   {
     .duty_resolution = LEDC_TIMER_2_BIT,  // resolution of PWM duty
@@ -142,7 +144,7 @@ extern void pwm_config(void *arg)
     .timer_num = LEDC_HS_TIMER            // timer index
   };
 //*/
-//*
+/*
   ledc_timer_config_t ledc_timer = 
   {
     .duty_resolution = LEDC_TIMER_2_BIT,  // resolution of PWM duty
