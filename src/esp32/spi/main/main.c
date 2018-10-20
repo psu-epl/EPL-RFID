@@ -150,7 +150,7 @@ bool RC522_detect_card()
     uint8_t result;
 
     bufferSize = 3;
-    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, &bufferATQA, &bufferSize);
+    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, bufferATQA, &bufferSize);
     if (result == STATUS_OK || result == STATUS_COLLISION)
         return true;
 
@@ -165,7 +165,7 @@ uint8_t RC522_read_card_uid()
     uint8_t result;
     uint8_t anticoll_loop_max = 32; // max 32 bits (ISo standard)
 
-    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, &buffer, &bufferSize);
+    result = RC522_REQA_or_WUPA(PICC_CMD_REQA, buffer, &bufferSize);
     if (result != STATUS_OK && result != STATUS_COLLISION)
         return result;
     ESP_LOGI(READER13, "buffer 0 [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
@@ -176,7 +176,7 @@ uint8_t RC522_read_card_uid()
 
     buffer[0] = PICC_CMD_SEL_CL1;
     buffer[1] =0x20;
-    result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &buffer, 2, &buffer, bufferSize, 0);
+    result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, buffer, 2, buffer, &bufferSize, 0);
     ESP_LOGE(READER13, "resutl %x ",result);
 
     if (result != STATUS_OK && result != STATUS_COLLISION)
