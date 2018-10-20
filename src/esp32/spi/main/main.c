@@ -162,27 +162,38 @@ uint8_t RC522_read_card_uid()
     uint8_t buffer[20];
     uint8_t bufferSize = sizeof(buffer);
     memset(&buffer, 0, bufferSize);  
+
+    uint8_t back[20];
+    uint8_t back_size = sizeof(back);
+    memset(&back, 0, back_size);  
     uint8_t result;
     uint8_t anticoll_loop_max = 32; // max 32 bits (ISo standard)
+
 
     result = RC522_REQA_or_WUPA(PICC_CMD_REQA, buffer, &bufferSize);
     if (result != STATUS_OK && result != STATUS_COLLISION)
         return result;
-    ESP_LOGI(READER13, "buffer 0 [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    ESP_LOGI(READER13, "buffer one [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
 
     write_reg(BitFramingReg, 0x00);
     clear_bits(CollReg, 0x80); // ValuesAfterColl=1 Bits received after collision are cleared.
 
+// Reset baud rates
+	write_reg(TxModeReg, 0x00);
+	write_reg(RxModeReg, 0x00);
+	// Reset ModWidthReg
+	write_reg(ModWidthReg, 0x26);
 
     buffer[0] = PICC_CMD_SEL_CL1;
     buffer[1] =0x20;
-    result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, buffer, 2, buffer, &bufferSize, 0);
+    ESP_LOGI(READER13, "before send [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, buffer, 2, back, &back_size);
     ESP_LOGE(READER13, "resutl %x ",result);
 
     if (result != STATUS_OK && result != STATUS_COLLISION)
         return result;
 
-    ESP_LOGI(READER13, "buffer [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    ESP_LOGI(READER13, "buffer two [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", back[0],back[1],back[2],back[3],back[4]);
 
     //ESP_LOGI(READER13, "Lower bye %x",bufferATQA[0]);
     // ESP_LOGI(READER13, "higher bye %x",bufferATQA[1]);
@@ -192,14 +203,13 @@ uint8_t RC522_read_card_uid()
 }
 
 
-uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_out, uint8_t data_out_len, uint8_t *data_in, uint8_t *data_in_len, uint8_t tx_last_bits)
+uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_out, uint8_t data_out_len, uint8_t *data_in, uint8_t *data_in_len)
 {
 
     write_reg(CommandReg, PCD_IDLE);                      // Stop any active command.
     write_reg(ComIrqReg, 0x7F);                           // Clear all seven interrupt request bits
     write_reg(FIFOLevelReg, 0x80);                        // FlushBuffer = 1, FIFO initialization
     write_reg_array(FIFODataReg, data_out, data_out_len); //Write data to FIFO
-    tx_last_bits == 0? clear_bits(BitFramingReg,0x7) : write_reg(BitFramingReg, tx_last_bits);                // Set the number of bits to be transmitted for the last command
     write_reg(CommandReg, command);                       //Execute the command
 
     if (command == PCD_TRANSCEIVE) //Start transmission of transceive see 9.3.1.14
@@ -209,14 +219,17 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
     while (!(status & 0x01) && !(status & irq)) //Spin until we get a timeout or the irq happens
         status = read_reg(ComIrqReg);
 
-   //ESP_LOGE(READER13, "ErrorReg %x ",read_reg(ErrorReg));    
-
     if ((status & 0x01) && !(status & irq)) //Check if a timeout happened from the timer and the waiting IRQ didn't happen
-      return STATUS_TIMEOUT;
+     {
+       ESP_LOGE(READER13, "IRQ reg %x ",read_reg(ComIrqReg));
+       return STATUS_TIMEOUT;
+     }
+
 
     uint8_t error_code = read_reg(ErrorReg);
     if (error_code & 0x13)
         return STATUS_ERROR;
+
 
     //return data
     if (command == PCD_TRANSCEIVE || command == PCD_RECEIVE)
@@ -244,7 +257,8 @@ uint8_t RC522_REQA_or_WUPA(uint8_t card_command, uint8_t *bufferATQA, uint8_t *b
         return STATUS_NO_ROOM;
 
     clear_bits(CollReg, 0x80); // ValuesAfterColl=1 Bits received after collision are cleared.
-    status = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &card_command, 1, bufferATQA, bufferSize, 7);
+    write_reg(BitFramingReg, 0x07);
+    status = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, &card_command, 1, bufferATQA, bufferSize);
     if (status != STATUS_OK)
         return status;
 
