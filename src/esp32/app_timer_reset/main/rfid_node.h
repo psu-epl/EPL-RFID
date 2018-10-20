@@ -49,7 +49,7 @@
 #define TIMER_DIVIDER         80  //  Hardware timer clock divider
 // convert counter value to seconds
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)
-#define TIMER_INTERVAL0_SEC   (3.0) // sample test interval for the first timer
+#define TIMER_INTERVAL0_SEC   (120) // sample test interval for the first timer
 #define NO_RELOAD   0        // testing will be done without auto reload
 #define RELOAD      1        // testing will be done with auto reload
 
@@ -84,6 +84,7 @@ typedef struct
 {
   //uint32_t capture_signal;
   uint64_t capture_signal;
+  uint64_t period;
   uint32_t capture_buffer;
   mcpwm_capture_signal_t sel_cap_signal;
 } capture;

@@ -21,27 +21,25 @@ static void mcpwm_gpio_initialize()
  */
 extern void disp_captured_signal(void *arg)
 {
-//  uint64_t current_cap_value = 0;
-//  uint64_t previous_cap_value = 0;
   capture evt;
   while (1)
   {
 //*
     xQueueReceive(((RFID_NODE *)arg)->cap_queue, &evt, portMAX_DELAY);
-    if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) {
-  //    current_cap_value = evt.capture_signal - previous_cap_value;
-   //   previous_cap_value = evt.capture_signal;
-    //printf("CAP0 : %" PRIu64 "us, %08X us \n", evt.capture_signal,evt.capture_buffer);
-      printf("buffer : %08X \n", evt.capture_buffer);
-    //*
+    if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) 
+    {
+      printf("CAP0 : %" PRIu64 "us BUF:, %08X\n", evt.period,evt.capture_buffer);
+    /*
       timer_set_counter_value(
         TIMER_GROUP_0,
         ((RFID_NODE*)arg)->timer.timer_idx,
         0u 
       );
     //*/
-
+       
     }
+    // kick the watchdog
+    vTaskDelay(1);
 //*/
   }
 }
@@ -53,7 +51,7 @@ static uint64_t previous_cap_value = 0;
 static void IRAM_ATTR timeout_isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
-  uint64_t current_cap_value = 0;
+  uint64_t period = 0;
   capture evt = { 0 };
   
 	mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
@@ -67,29 +65,33 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
       &evt.capture_signal
     );
     
-    current_cap_value = evt.capture_signal - previous_cap_value;
+    //period = evt.capture_signal;
+    period = evt.capture_signal - previous_cap_value;
     previous_cap_value = evt.capture_signal;
-    if(current_cap_value > 76 && current_cap_value < 78)
-    //if(evt.capture_signal > 76 && evt.capture_signal < 78)
+
+    if(period >= 77  && period <= 83)
     {
     	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
 			((RFID_NODE *)arg)->capture_buffer |= 0x1;
     }
-    else if(current_cap_value > 62 && current_cap_value < 64)
-    //else if(evt.capture_signal > 62 && evt.capture_signal < 64)
+    else if(period >= 61 && period <= 67)
     {
-      // o_0 **** rethink this
      	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
-    }//*
+    }
+    else if(period >= 5 && period <= 11)
+    {
+     	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
+    }
     else
     {
       // bail out
       goto EXIT_ISR;
     }
-    //*/
-		if(count > 31)
+    
+    if(count > 31)
     {
       evt.capture_buffer = ((RFID_NODE *)arg)->capture_buffer;
+      evt.period = period;
       ((RFID_NODE *)arg)->capture_buffer = 0x0;
       xQueueSendFromISR(((RFID_NODE *)arg)->cap_queue, &evt, NULL);
       count = 0;
