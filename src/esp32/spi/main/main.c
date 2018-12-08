@@ -169,11 +169,12 @@ uint8_t RC522_read_card_uid()
     uint8_t result;
     uint8_t anticoll_loop_max = 32; // max 32 bits (ISo standard)
 
-
+    ESP_LOGI(READER13, "before REQA");
     result = RC522_REQA_or_WUPA(PICC_CMD_REQA, buffer, &bufferSize);
+    ESP_LOGI(READER13, "after REQA");
     if (result != STATUS_OK && result != STATUS_COLLISION)
         return result;
-    ESP_LOGI(READER13, "buffer one [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    //ESP_LOGI(READER13, "buffer one [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
 
     write_reg(BitFramingReg, 0x00);
     clear_bits(CollReg, 0x80); // ValuesAfterColl=1 Bits received after collision are cleared.
@@ -186,14 +187,17 @@ uint8_t RC522_read_card_uid()
 
     buffer[0] = PICC_CMD_SEL_CL1;
     buffer[1] =0x20;
-    ESP_LOGI(READER13, "before send [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    //ESP_LOGI(READER13, "before send [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+    ESP_LOGI(READER13, "before anti");
     result = RC522_communicate_with_card(PCD_TRANSCEIVE, 0x30, buffer, 2, back, &back_size);
-    ESP_LOGE(READER13, "resutl %x ",result);
+    ESP_LOGI(READER13, "after anti");
+
+    //ESP_LOGE(READER13, "resutl %x ",result);
 
     if (result != STATUS_OK && result != STATUS_COLLISION)
         return result;
 
-    ESP_LOGI(READER13, "buffer two [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", back[0],back[1],back[2],back[3],back[4]);
+    //ESP_LOGI(READER13, "buffer two [0]:%x [1]:%x [2]:%x [3]:%x [4]:%x", back[0],back[1],back[2],back[3],back[4]);
 
     //ESP_LOGI(READER13, "Lower bye %x",bufferATQA[0]);
     // ESP_LOGI(READER13, "higher bye %x",bufferATQA[1]);
@@ -221,7 +225,7 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
 
     if ((status & 0x01) && !(status & irq)) //Check if a timeout happened from the timer and the waiting IRQ didn't happen
      {
-       ESP_LOGE(READER13, "IRQ reg %x ",read_reg(ComIrqReg));
+       //ESP_LOGE(READER13, "IRQ reg %x ",read_reg(ComIrqReg));
        return STATUS_TIMEOUT;
      }
 
@@ -238,8 +242,9 @@ uint8_t RC522_communicate_with_card(uint8_t command, uint8_t irq, uint8_t *data_
 
         *data_in_len = len;
         for (int i = 0; i < len; ++i)
-        {
+        { 
             data_in[i] = read_reg(FIFODataReg);
+            ESP_LOGI(READER13, "[%i]:%x", i, data_in[i]);
         }
     }
 
