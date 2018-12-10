@@ -3,44 +3,52 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <queue>
 
-enum 
+
+
+using namespace std;
+
+const int bitwidth = 32;
+const int streamSize = 10;
+
+typedef enum 
 { 
 	status_success = 0, 
 	status_failure 
-};
-
-
-{
-		
-};
+} exit_status;
 
 class EPLurbus
 {
 	public:
 		EPLurbus();
 		~EPLurbus();
-		int openFile(string filename);
-		int readFile(int size);
 
+		exit_status openFile(string filename);
+		exit_status fillBuffers();
+		exit_status displayBuffers();
+		exit_status closeFile();
+	
 	private:
 		//queue <int> fd;
-		int fd;
-		static int size;
-		uint64_t rawBuffer[size];
+		const int m_size;
+		uint32_t *m_pRawBitstreamBuffer;
+		string *m_pStringBitstreamBuffer[bitwidth];
 		
-		int size26;
-		int size34;
-		int size35;
-		int size37;
-		int size40;
+		ifstream fin; 
+		
+		int m_size26;
+		int m_size34;
+		int m_size35;
+		int m_size37;
+		int m_size40;
 
-		uint64_t *pBuff26;
-		uint64_t *pBuff34;
-		uint64_t *pBuff35;
-		uint64_t *pBuff37;
-		uint64_t *pBuff40;
+		uint32_t *m_pBuff26;
+		uint32_t *m_pBuff34;
+		uint32_t *m_pBuff35;
+		uint32_t *m_pBuff37;
+		uint32_t *m_pBuff40;
 
 		// 26, 34, 35, 37, 40
 
