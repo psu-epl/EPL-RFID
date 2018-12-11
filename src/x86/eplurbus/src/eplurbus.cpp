@@ -8,23 +8,23 @@ using namespace std;
 
 EPLurbus::EPLurbus() : m_size(streamSize)
 {
-	m_pRawBitstreamBuffer = new uint32_t[m_size];
+	m_pRawBitstreamBuffer = new uint64_t[m_size];
 //	m_pStringBitstreamBuffer = new string[m_size];
 
 	m_size26 = (m_size * bitwidth) / 26;
-	m_pBuff26 = new uint32_t[m_size26];   
+	m_pBuff26 = new uint64_t[m_size26];   
 	
 	m_size34 = (m_size * bitwidth) / 34;
-	m_pBuff34 = new uint32_t[m_size34];   
+	m_pBuff34 = new uint64_t[m_size34];   
 	
 	m_size35 = (m_size * bitwidth) / 35;
-	m_pBuff35 = new uint32_t[m_size35];   
+	m_pBuff35 = new uint64_t[m_size35];   
 	
 	m_size37 = (m_size * bitwidth) / 37;
-	m_pBuff37 = new uint32_t[m_size37];   
+	m_pBuff37 = new uint64_t[m_size37];   
 	
 	m_size40 = (m_size * bitwidth) / 40;
-	m_pBuff40 = new uint32_t[m_size40];
+	m_pBuff40 = new uint64_t[m_size40];
 }
 
 EPLurbus::~EPLurbus()
@@ -51,16 +51,29 @@ exit_status EPLurbus::openFile(string filename)
 
 exit_status EPLurbus::fillBuffers()
 {
-	unsigned int a;
+  uint32_t a = 0x0;
+	uint64_t bits = 0x0; 
 	
 //	while(fin >> hex >> a)   /// Notice how the loop is done.
 	for(int i = 0;fin >> hex >> a && i < m_size;++i)
 	{
-		m_pRawBitstreamBuffer[i] = a;
+    if(i % 2 == 0)
+    {
+      bits = ((uint64_t) a) << 32;  
+    }
+    else
+    {
+      bits |= a;
+		  m_pRawBitstreamBuffer[i] = bits;
+		  cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
+      bits = 0x0;
+    }
+//		m_pRawBitstreamBuffer[i] = bits;
 //		m_pStringBitstreamBuffer[i] = new string (std::bitset< bitwidth >( a ).to_string());
 		//cout << m_pStringBitstreamBuffer[i] << '\n';
 		//cout << std::bitset< bitwidth >( a ) << '\n';
-		cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
+//		cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
+//    bits = 0x0;
 	}
 
 	return status_success;

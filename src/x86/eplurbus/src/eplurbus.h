@@ -10,7 +10,7 @@
 
 using namespace std;
 
-const int bitwidth = 32;
+const int bitwidth = 64;
 const int streamSize = 10;
 
 typedef enum 
@@ -33,7 +33,7 @@ class EPLurbus
 	private:
 		//queue <int> fd;
 		const int m_size;
-		uint32_t *m_pRawBitstreamBuffer;
+		uint64_t *m_pRawBitstreamBuffer;
 		string *m_pStringBitstreamBuffer[bitwidth];
 		
 		ifstream fin; 
@@ -44,11 +44,11 @@ class EPLurbus
 		int m_size37;
 		int m_size40;
 
-		uint32_t *m_pBuff26;
-		uint32_t *m_pBuff34;
-		uint32_t *m_pBuff35;
-		uint32_t *m_pBuff37;
-		uint32_t *m_pBuff40;
+		uint64_t *m_pBuff26;
+		uint64_t *m_pBuff34;
+		uint64_t *m_pBuff35;
+		uint64_t *m_pBuff37;
+		uint64_t *m_pBuff40;
 
 		// 26, 34, 35, 37, 40
 
