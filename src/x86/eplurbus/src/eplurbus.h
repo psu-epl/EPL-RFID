@@ -11,7 +11,7 @@
 using namespace std;
 
 const int bitwidth = 64;
-const int streamSize = 10;
+const int streamSize = 8;
 
 typedef enum 
 { 

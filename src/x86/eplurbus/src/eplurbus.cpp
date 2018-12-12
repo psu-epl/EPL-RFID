@@ -54,6 +54,7 @@ exit_status EPLurbus::openFile(string filename)
 exit_status EPLurbus::convertBuffer()
 {
   uint64_t temp = 0x0;
+  const int validBits = 27;
 
   if(!m_pRawBitstreamBuffer)
   {
@@ -62,11 +63,10 @@ exit_status EPLurbus::convertBuffer()
   uint64_t *workingRawStreamBuffer = new uint64_t[m_size];
   memcpy(workingRawStreamBuffer, m_pRawBitstreamBuffer, sizeof(uint64_t)*m_size);
 
-  cout << "raw:\n" << std::bitset< bitwidth >( m_pRawBitstreamBuffer[0] ) << '\n';
-  temp = m_pRawBitstreamBuffer[0] & ((uint64_t)0xFFFFFFFE << 32);
-//  temp = workingRawStreamBuffer[0] & ((uint64_t)0xFFFFFFFE << 32);
+  cout << "raw:\n" << std::bitset<bitwidth>(m_pRawBitstreamBuffer[0]) << '\n';
+  temp = m_pRawBitstreamBuffer[0] >> (bitwidth - validBits);
 	
-  cout << "temp:\n" << std::bitset< bitwidth >( temp ) << '\n';
+  cout << "temp:\n" << std::bitset<validBits>(temp) << '\n';
 
   return status_success;
 }
@@ -82,12 +82,14 @@ exit_status EPLurbus::fillBuffers()
     if(i % 2 == 0)
     {
       bits = ((uint64_t) a) << 32;  
+		  //cout << std::bitset< bitwidth >(bits) << '\n';
     }
     else
     {
       bits |= a;
-		  m_pRawBitstreamBuffer[i] = bits;
-		  cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
+		  //cout << std::bitset< bitwidth >(bits) << '\n';
+		  m_pRawBitstreamBuffer[i/2] = bits;
+		  cout << std::bitset<bitwidth>(m_pRawBitstreamBuffer[i/2]) << '\n';
       bits = 0x0;
     }
 
