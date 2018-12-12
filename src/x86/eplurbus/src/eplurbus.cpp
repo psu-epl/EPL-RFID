@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
@@ -49,6 +51,26 @@ exit_status EPLurbus::openFile(string filename)
 	return status_success;
 }
 
+exit_status EPLurbus::convertBuffer()
+{
+  uint64_t temp = 0x0;
+
+  if(!m_pRawBitstreamBuffer)
+  {
+    return status_failure;
+  }
+  uint64_t *workingRawStreamBuffer = new uint64_t[m_size];
+  memcpy(workingRawStreamBuffer, m_pRawBitstreamBuffer, sizeof(uint64_t)*m_size);
+
+  cout << "raw:\n" << std::bitset< bitwidth >( m_pRawBitstreamBuffer[0] ) << '\n';
+  temp = m_pRawBitstreamBuffer[0] & ((uint64_t)0xFFFFFFFE << 32);
+//  temp = workingRawStreamBuffer[0] & ((uint64_t)0xFFFFFFFE << 32);
+	
+  cout << "temp:\n" << std::bitset< bitwidth >( temp ) << '\n';
+
+  return status_success;
+}
+
 exit_status EPLurbus::fillBuffers()
 {
   uint32_t a = 0x0;
@@ -68,6 +90,7 @@ exit_status EPLurbus::fillBuffers()
 		  cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
       bits = 0x0;
     }
+
 //		m_pRawBitstreamBuffer[i] = bits;
 //		m_pStringBitstreamBuffer[i] = new string (std::bitset< bitwidth >( a ).to_string());
 		//cout << m_pStringBitstreamBuffer[i] << '\n';
@@ -75,7 +98,7 @@ exit_status EPLurbus::fillBuffers()
 //		cout << std::bitset< bitwidth >( m_pRawBitstreamBuffer[i] ) << '\n';
 //    bits = 0x0;
 	}
-
+  convertBuffer();
 	return status_success;
 }
 
