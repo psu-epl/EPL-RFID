@@ -28,6 +28,8 @@ class EPLurbus
 		exit_status openFile(string filename);
 		exit_status fillBuffers();
     exit_status convertBuffer();
+    exit_status shiftLeft();
+    exit_status convertBuffer2(int validBits);
 		exit_status displayBuffers();
 		exit_status closeFile();
 	
