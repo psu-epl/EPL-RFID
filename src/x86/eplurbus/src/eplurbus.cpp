@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <bitset>
 #include <stdio.h>
 #include <string.h>
 
@@ -11,27 +10,26 @@ using namespace std;
 EPLurbus::EPLurbus() : m_size(streamSize)
 {
 	m_pRawBitstreamBuffer = new uint64_t[m_size];
-
-	m_size26 = (m_size * bitwidth) / 26;
-	m_pBuff26 = new uint64_t[m_size26];   
+  
+	m_size26 = (m_size * bitwidth) / bits26;
+	m_pBuff26 = new bitset<bits26>[m_size26];   
 	
-	m_size34 = (m_size * bitwidth) / 34;
-	m_pBuff34 = new uint64_t[m_size34];   
+	m_size34 = (m_size * bitwidth) / bits34;
+	m_pBuff34 = new bitset<bits34>[m_size34];   
 	
-	m_size35 = (m_size * bitwidth) / 35;
-	m_pBuff35 = new uint64_t[m_size35];   
+	m_size35 = (m_size * bitwidth) / bits35;
+	m_pBuff35 = new bitset<bits35>[m_size35];   
 	
-	m_size37 = (m_size * bitwidth) / 37;
-	m_pBuff37 = new uint64_t[m_size37];   
+	m_size37 = (m_size * bitwidth) / bits37;
+	m_pBuff37 = new bitset<bits37>[m_size37];   
 	
-	m_size40 = (m_size * bitwidth) / 40;
-	m_pBuff40 = new uint64_t[m_size40];
+	m_size40 = (m_size * bitwidth) / bits40;
+	m_pBuff40 = new bitset<bits40>[m_size40];
 }
 
 EPLurbus::~EPLurbus()
 {
 	delete m_pRawBitstreamBuffer;
-//	delete m_pStringBitstreamBuffer;
 	delete m_pBuff26;
 	delete m_pBuff34;
 	delete m_pBuff35;
@@ -64,10 +62,10 @@ exit_status EPLurbus::shiftLeft()
   return status_success;
 }
 
-exit_status EPLurbus::convertBuffer2(int vb)
+template<size_t number_of_bits>
+exit_status EPLurbus::convertBuffer2()
 {
-  uint64_t temp = 0x0;
-  const int validBits = const_cast<const int&>(vb);
+  bitset<number_of_bits> validBits = 0x0;
 
   if(!m_pRawBitstreamBuffer)
   {
@@ -78,11 +76,12 @@ exit_status EPLurbus::convertBuffer2(int vb)
   memcpy(workingRawStreamBuffer, m_pRawBitstreamBuffer, sizeof(uint64_t)*m_size);
 
   cout << "raw:\n" << std::bitset<bitwidth>(m_pRawBitstreamBuffer[0]) << '\n';
-  temp = m_pRawBitstreamBuffer[0] >> (bitwidth - validBits);
+  validBits = m_pRawBitstreamBuffer[0] >> (bitwidth - number_of_bits);
 	
-  cout << "temp:\n" << std::bitset<validBits>(temp) << '\n';
+  cout << "temp:\n" << validBits << '\n';
 
   delete workingRawStreamBuffer;
+  
   return status_success;
 }
 
@@ -128,7 +127,7 @@ exit_status EPLurbus::fillBuffers()
       bits = 0x0;
     }
 	}
-  convertBuffer(26);
+  convertBuffer2<26>();
 	return status_success;
 }
 
