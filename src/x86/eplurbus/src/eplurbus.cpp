@@ -71,7 +71,7 @@ exit_status EPLurbus::convertBuffer2()
   {
     return status_failure;
   }
-
+  // TODO: this changes a lot in dynamic templaty things
   uint64_t *workingRawStreamBuffer = new uint64_t[m_size];
   memcpy(workingRawStreamBuffer, m_pRawBitstreamBuffer, sizeof(uint64_t)*m_size);
 
