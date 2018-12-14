@@ -34,7 +34,7 @@ class EPLurbus
     exit_status convertBuffer();
     exit_status shiftLeft();
    
-    void shiftItAll(uint64_t *pBuff, size_t n);
+    void shiftItAll(uint64_t *pBuff, size_t n, int shift);
 
     template<size_t number_of_bits>
     exit_status convertBuffer2();
@@ -44,7 +44,8 @@ class EPLurbus
 	
 	private:
 		//queue <int> fd;
-		const int m_size;
+		const int m_rawBuffSize;
+    const int m_streamSize;
 		uint64_t *m_pRawBitstreamBuffer;
 		string *m_pStringBitstreamBuffer[bitwidth];
 		
