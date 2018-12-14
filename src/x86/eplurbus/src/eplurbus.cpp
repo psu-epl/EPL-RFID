@@ -10,20 +10,20 @@ using namespace std;
 EPLurbus::EPLurbus() : m_size(streamSize)
 {
 	m_pRawBitstreamBuffer = new uint64_t[m_size];
-  
-	m_size26 = (m_size * bitwidth) / bits26;
+  int totalBits = m_size / 2 * bitwidth; 
+	m_size26 = totalBits / bits26;
 	m_pBuff26 = new bitset<bits26>[m_size26];   
 	
-	m_size34 = (m_size * bitwidth) / bits34;
+	m_size34 = totalBits / bits34;
 	m_pBuff34 = new bitset<bits34>[m_size34];   
 	
-	m_size35 = (m_size * bitwidth) / bits35;
+	m_size35 = totalBits / bits35;
 	m_pBuff35 = new bitset<bits35>[m_size35];   
 	
-	m_size37 = (m_size * bitwidth) / bits37;
+	m_size37 = totalBits / bits37;
 	m_pBuff37 = new bitset<bits37>[m_size37];   
 	
-	m_size40 = (m_size * bitwidth) / bits40;
+	m_size40 = totalBits / bits40;
 	m_pBuff40 = new bitset<bits40>[m_size40];
 }
 
@@ -62,6 +62,14 @@ exit_status EPLurbus::shiftLeft()
   return status_success;
 }
 
+void EPLurbus::shiftItAll(uint64_t *pBuff, size_t n)
+{
+    for(int j = 0; j < m_size - 1;++j)
+    {
+      pBuff[j] = (pBuff[j] << n) | (pBuff[j+1] >> n);
+    }
+}
+
 template<size_t number_of_bits>
 exit_status EPLurbus::convertBuffer2()
 {
@@ -71,14 +79,22 @@ exit_status EPLurbus::convertBuffer2()
   {
     return status_failure;
   }
-  // TODO: this changes a lot in dynamic templaty things
+
   uint64_t *workingRawStreamBuffer = new uint64_t[m_size];
   memcpy(workingRawStreamBuffer, m_pRawBitstreamBuffer, sizeof(uint64_t)*m_size);
+  int shift = 0;
+  for(int i = 0;i < m_size26;++i)
+  { 
+    //cout << "raw:\n" << std::bitset<bitwidth>(workingRawStreamBuffer[i]) << '\n';
+    shift = (bitwidth - number_of_bits);
+    m_pBuff26[i] = workingRawStreamBuffer[0] >> shift;
+    //cout << "buff26[" << i << "]: " << m_pBuff26[i] << '\n';
+    cout << m_pBuff26[i];
+    //cout << m_pBuff26[i] << " ";
 
-  cout << "raw:\n" << std::bitset<bitwidth>(m_pRawBitstreamBuffer[0]) << '\n';
-  validBits = m_pRawBitstreamBuffer[0] >> (bitwidth - number_of_bits);
-	
-  cout << "temp:\n" << validBits << '\n';
+    shiftItAll(workingRawStreamBuffer,number_of_bits);
+
+  }
 
   delete workingRawStreamBuffer;
   
@@ -123,21 +139,25 @@ exit_status EPLurbus::fillBuffers()
     {
       bits |= a;
 		  m_pRawBitstreamBuffer[i/2] = bits;
-		  cout << std::bitset<bitwidth>(m_pRawBitstreamBuffer[i/2]) << '\n';
+		  cout << std::bitset<bitwidth>(m_pRawBitstreamBuffer[i/2]);
+		  //cout << std::bitset<bitwidth>(m_pRawBitstreamBuffer[i/2]) << " ";
+		  //cout << std::bitset<bitwidth>(m_pRawBitstreamBuffer[i/2]) << '\n';
       bits = 0x0;
     }
 	}
+  cout << "\n-----------------------\n";
   convertBuffer2<26>();
 	return status_success;
 }
 
 exit_status EPLurbus::displayBuffers()
 {
-	cout << "Dispaly stuff\n";
-	//for(int i = 0;i < m_size; ++i)
-	//{
-		
-	//}
+//	cout << "Dispaly stuff\n";
+	for(int i = 0;i < 22; ++i)
+	{
+    cout << "*";	
+	}
+    cout << '\n';	
 }
 
 exit_status EPLurbus::closeFile()

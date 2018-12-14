@@ -33,7 +33,9 @@ class EPLurbus
 		exit_status fillBuffers();
     exit_status convertBuffer();
     exit_status shiftLeft();
-    
+   
+    void shiftItAll(uint64_t *pBuff, size_t n);
+
     template<size_t number_of_bits>
     exit_status convertBuffer2();
 		
