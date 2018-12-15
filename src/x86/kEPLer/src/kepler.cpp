@@ -148,8 +148,32 @@ exit_status Kepler::openFile(string filename)
 		cout << "Open file failure: " << filename << "\n";
 		return status_failure;
 	}
+
 	return status_success;
 }
+
+/*
+exit_status Kepler::openFile2(string filename)
+{
+  if(mOpenFileCount >= kMaxOpenFiles)
+  {
+    cout << "Maximum number of files are open...\n";
+    return 1;
+  }
+  int tempFileCount = mOpenFileCount + 1; 
+	mFin[tempFileCount].open(filename);
+
+	if(mFin[tempFileCount].fail())
+	{
+		cout << "Open file failure: " << filename << "\n";
+		return status_failure;
+  }
+
+ // ++file
+
+	return status_success;
+}
+//*/
 
 template<size_t number_of_bits>
 exit_status Kepler::convertBuffer(

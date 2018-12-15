@@ -15,6 +15,7 @@ const int kBits34 = 34;
 const int kBits35 = 35;
 const int kBits37 = 37;
 const int kBits40 = 40;
+const int kMaxOpenFiles = 5;
 
 typedef enum 
 { 
@@ -48,6 +49,7 @@ class Kepler
 		~Kepler();
 
 		exit_status openFile(string filename);
+		exit_status openFile2(string filename);
 		exit_status fillBuffers();
     exit_status shiftLeft();
    
@@ -65,7 +67,8 @@ class Kepler
 		const int mStreamBufferLength;
     uint64_t *mpStreamBuffer;
 		
-		ifstream fin; 
+		ifstream fin;
+//    ifstream mFin[kMaxOpenFiles];
 		
 		// 26, 34, 35, 37, 40
     Bitz<kBits26> *mpBitz26;
