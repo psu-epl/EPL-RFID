@@ -28,7 +28,8 @@ extern void disp_captured_signal(void *arg)
     xQueueReceive(((RFID_NODE *)arg)->cap_queue, &evt, portMAX_DELAY);
     if (evt.sel_cap_signal == MCPWM_SELECT_CAP0) 
     {
-      printf("CAP0 : %" PRIu64 "us BUF:, %08X\n", evt.period,evt.capture_buffer);
+      //printf("CAP0 : %" PRIu64 "us BUF:, %08X\n", evt.period,evt.capture_buffer);
+      printf("%08X\n", evt.capture_buffer);
     /*
       timer_set_counter_value(
         TIMER_GROUP_0,
@@ -52,7 +53,7 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
 {
   uint32_t mcpwm_intr_status;
   uint64_t period = 0;
-  capture evt = { 0 };
+  capture evt = { };
   
 	mcpwm_intr_status = pMCPWM->int_st.val; //Read interrupt status
   
@@ -78,10 +79,12 @@ static void IRAM_ATTR timeout_isr_handler(void *arg)
     {
      	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
     }
+		/*
     else if(period >= 5 && period <= 11)
     {
      	((RFID_NODE *)arg)->capture_buffer <<= 0x1;
     }
+		//*/
     else
     {
       // bail out

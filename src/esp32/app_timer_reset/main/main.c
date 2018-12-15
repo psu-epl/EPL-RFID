@@ -1,7 +1,7 @@
 
 #include "rfid_node.h"
 
-RFID_NODE rfid_node = { 0 };
+RFID_NODE rfid_node = { };
 
 void app_init(){
   input_capture_config(&rfid_node);
