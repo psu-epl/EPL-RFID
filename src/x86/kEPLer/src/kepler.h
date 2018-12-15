@@ -11,7 +11,7 @@ using namespace std;
 const int bitwidth = 64;
 const int streamLength = 8;
 const int bits26 = 26;
-//const int bits34 = 34;
+const int bits34 = 34;
 //const int bits35 = 35;
 //const int bits37 = 37;
 //const int bits40 = 40;
@@ -33,13 +33,18 @@ class Kepler
     exit_status shiftLeft();
    
     void shiftItAll(uint64_t *pBuff, size_t n, int shift);
-
+    
     template<size_t number_of_bits>
-    exit_status convertBuffer();
+    exit_status convertBuffer(
+      bitset<number_of_bits> *pBuff, 
+      int buffLength
+    );
 		
     exit_status displayBuffers();
 		exit_status closeFile();
 	
+//    void printShift();
+//    void printStreamBuffer(uint64_t *pBuff);
 	private:
     const int mStreamLength;
 		const int mStreamBufferLength;
@@ -49,7 +54,9 @@ class Kepler
 		
 		int mBuff26Length;
 		bitset<bits26> *mpBuff26;
-//		int m_size34;
+		
+    int mBuff34Length;
+		bitset<bits34> *mpBuff34;
 //		int m_size35;
 //		int m_size37;
 //		int m_size40;

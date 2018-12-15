@@ -5,6 +5,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+  (void)argc;
+  (void)argv;
 	exit_status status = status_success;
 	
 	Kepler *kepler = new Kepler();

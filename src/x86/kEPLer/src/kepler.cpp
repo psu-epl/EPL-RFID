@@ -16,7 +16,9 @@ Kepler::Kepler() :
 	
   mBuff26Length = totalBits / bits26;
 	mpBuff26 = new bitset<bits26>[mBuff26Length];
-  memset(mpBuff26,0,mpBuff26->size());  
+  //memset(mpBuff26,0,mpBuff26->size());  
+  mBuff34Length = totalBits / bits34;
+	mpBuff34 = new bitset<bits34>[mBuff34Length];
 /*  
 	m_size34 = totalBits / bits34;
 	m_pBuff34 = new bitset<bits34>[m_size34];   
@@ -36,7 +38,7 @@ Kepler::~Kepler()
 {
 	delete mpStreamBuffer;
 	delete mpBuff26;
-//	delete m_pBuff34;
+	delete mpBuff34;
 //	delete m_pBuff35;
 //	delete m_pBuff37;
 //	delete m_pBuff40;
@@ -54,32 +56,43 @@ exit_status Kepler::openFile(string filename)
 }
 
 /*
-exit_status Kepler::shiftLeft()
+void Kepler::printShift()
 {
-  unsigned char bits1 = 0, bits2 = 0;
-  for(i = len-1; i >= 0; --i) {
-    bits2 = array[i] & 0x07;
-    array[i] >>= 3;
-    array[i] |= bits1 << 5;
-    bits1 = bits2;
+	for(int i = 0;i < mBuff26Length;++i)
+  {
+    cout << "|";
+    for(int j = 0;j < bits26 - 1;++j)
+    {
+      cout << ' ';
+    }
   }
-  return status_success;
+  cout << '\n';
 }
- //*/
+
+void Kepler::printStreamBuffer(uint64_t *pBuff)
+{
+  for(int j = 0; j < mStreamBufferLength;++j)
+  {
+    cout << bitset<bitwidth>(pBuff[j]);
+  }
+}
+//*/
 
 void Kepler::shiftItAll(uint64_t *pBuff, size_t n, int shift)
 {
-    for(int j = 0; j < mStreamBufferLength;++j)
-    {
-      pBuff[j] = (pBuff[j] << n) | (pBuff[j+1] >> n);
-    }
+  (void)shift;
+  for(int j = 0; j < mStreamBufferLength;++j)
+  {
+    pBuff[j] = (pBuff[j] << n) | (pBuff[j+1] >> shift);
+  }
 }
 
 template<size_t number_of_bits>
-exit_status Kepler::convertBuffer()
+exit_status Kepler::convertBuffer(
+  bitset<number_of_bits> *pBuff, 
+  int buffLength
+)
 {
-  bitset<number_of_bits> validBits = 0x0;
-
   if(!mpStreamBuffer)
   {
     return status_failure;
@@ -90,12 +103,10 @@ exit_status Kepler::convertBuffer()
   
   int shift = (bitwidth - number_of_bits);
   
-  for(int i = 0;i < mBuff26Length;++i)
+  for(int i = 0;i < buffLength;++i)
   { 
-    mpBuff26[i] = pStreamBuffer[0] >> shift;
-    cout << mpBuff26[i];
-
-    shiftItAll(pStreamBuffer,number_of_bits,shift);
+    pBuff[i] = pStreamBuffer[0] >> shift;
+    shiftItAll(pStreamBuffer, number_of_bits, shift);
   }
 
   delete [] pStreamBuffer;
@@ -108,7 +119,6 @@ exit_status Kepler::fillBuffers()
   uint32_t a = 0x0;
 	uint64_t bits = 0x0; 
 
-
   for(int i = 0;fin >> hex >> a && i < mStreamLength;++i)
 	{
     if(i % 2 == 0)
@@ -119,24 +129,30 @@ exit_status Kepler::fillBuffers()
     {
       bits |= a;
 		  mpStreamBuffer[i/2] = bits;
-//		  cout << std::bitset<bitwidth>(mpStreamBuffer[i/2]);
       bits = 0x0;
     }
 	}
- // convertBuffer<26>();
+
+  convertBuffer<bits26>(mpBuff26, mBuff26Length);
+  convertBuffer<bits34>(mpBuff34, mBuff34Length);
+
 	return status_success;
 }
 
 exit_status Kepler::displayBuffers()
 {
+	cout << "Dispaly stuff\n";
+
 	for(int i = 0;i < mStreamBufferLength;++i)
   {
     cout << "|";
+    
     for(int j = 0;j < bitwidth - 1;++j)
     {
-      cout << ' ';
+      cout << ((j == (bitwidth/2 - 1)) ? "." : " ");
     }
   }
+
   cout << '\n';
 
   for(int i = 0;i < mStreamBufferLength;++i)
@@ -144,14 +160,25 @@ exit_status Kepler::displayBuffers()
     cout << bitset<bitwidth>(mpStreamBuffer[i]); 
   }
 
-  cout << "\n-----------------------\n";
-  
+  cout << '\n';
+
+	for(int i = 0;i < mBuff26Length;++i)
+  {
+    cout << "|";
+    for(int j = 0;j < bits26 - 1;++j)
+    {
+      cout << ' ';
+    }
+  }
+
+  cout << '\n';
+
   for(int i = 0;i < mBuff26Length;++i)
   {
     cout << bitset<bits26>(mpBuff26[i]); 
   }
-//	cout << "Dispaly stuff\n";
-//*
+
+//* TODO:make this less gross
 	for(int i = 0;i < 22; ++i)
 	{
     cout << "*";	
