@@ -7,6 +7,14 @@
 
 using namespace std;
 
+void shiftItAll(uint64_t *pBuff,int buffLength, int nBits, int shift)
+{
+  for(int j = 0; j < buffLength;++j)
+  {
+    pBuff[j] = (pBuff[j] << nBits) | (pBuff[j+1] >> shift);
+  }
+}
+
 template<size_t number_of_bits>
 Bitz<number_of_bits>::Bitz(int totalBits)
 {
@@ -18,13 +26,21 @@ template<size_t number_of_bits>
 Bitz<number_of_bits>::Bitz(
   uint64_t *pStreamBuffer, 
   int streamBufferLength, 
-  int bitwidth
+  int bitWidth
 )
 {
-  int totalBits = streamBufferLength * bitwidth; 
+  shift = (bitWidth - number_of_bits);
+  
+  int totalBits = streamBufferLength * bitWidth; 
   mBitBufferLength = totalBits / number_of_bits;
-  mpBitBuffer = new bitset<number_of_bits>[mBitBufferLength]; 
-  memcpy(mpBitBuffer, pStreamBuffer, sizeof(uint64_t) * streamBufferLength);
+  slack = totalBits - (mBitBufferLength * number_of_bits);
+  mpBitBuffer = new bitset<number_of_bits>[mBitBufferLength];
+  
+  uint64_t *pTempStreamBuffer = new uint64_t[streamBufferLength];
+  memcpy(pTempStreamBuffer, pStreamBuffer, sizeof(uint64_t) * streamBufferLength);
+  convertBuffer(pTempStreamBuffer,streamBufferLength);
+
+  delete pTempStreamBuffer;
 }
 
 template<size_t number_of_bits>
@@ -33,48 +49,95 @@ Bitz<number_of_bits>::~Bitz()
   delete mpBitBuffer;
 }
 
+template<size_t number_of_bits>
+exit_status Bitz<number_of_bits>::convertBuffer(
+  uint64_t *pStreamBuffer,
+  int streamBufferLength
+)
+{
+  if(!pStreamBuffer)
+  {
+    return status_failure;
+  }
+
+  for(int i = 0;i < mBitBufferLength;++i)
+  { 
+    mpBitBuffer[i] = pStreamBuffer[0] >> shift;
+    shiftItAll(pStreamBuffer, streamBufferLength, number_of_bits, shift);
+  }
+
+  return status_success;
+}
+
+template<size_t number_of_bits>
+void Bitz<number_of_bits>::display()
+{
+  cout << '\n';
+
+	for(int i = 0;i < mBitBufferLength;++i)
+  {
+    cout << "|";
+    for(size_t j = 0;j < number_of_bits - 1;++j)
+    {
+      cout << ' ';
+    }
+  }
+
+  cout << '\n';
+
+  for(int i = 0;i < mBitBufferLength;++i)
+  {
+    cout << bitset<number_of_bits>(mpBitBuffer[i]); 
+  }
+
+	for(int i = 0;i < slack; ++i)
+	{
+    cout << "*";	
+	}
+}
+
+template<size_t number_of_bits>
+int Bitz<number_of_bits>::getBitBufferLength() const
+{
+  return mBitBufferLength;
+}
+
 Kepler::Kepler() : 
   mStreamLength(kStreamLength),
   mStreamBufferLength(kStreamLength/2)
 {
 	mpStreamBuffer = new uint64_t[mStreamBufferLength];
-  int totalBits = mStreamBufferLength * kBitWidth; 
-	
-  mBuff26Length = totalBits / kBits26;
-	mpBuff26 = new bitset<kBits26>[mBuff26Length];
  
-  //mpBitz26 = new Bitz<26>(totalBits);
   mpBitz26 = NULL;
-
-  mBuff34Length = totalBits / kBits34;
-	mpBuff34 = new bitset<kBits34>[mBuff34Length];
-/*  
-	m_size34 = totalBits / bits34;
-	m_pBuff34 = new bitset<bits34>[m_size34];   
-	
-	m_size35 = totalBits / bits35;
-	m_pBuff35 = new bitset<bits35>[m_size35];   
-	
-	m_size37 = totalBits / bits37;
-	m_pBuff37 = new bitset<bits37>[m_size37];   
-	
-	m_size40 = totalBits / bits40;
-	m_pBuff40 = new bitset<bits40>[m_size40];
-//*/
+  mpBitz34 = NULL;
+  mpBitz35 = NULL;
+  mpBitz37 = NULL;
+  mpBitz40 = NULL;
 }
 
 Kepler::~Kepler()
 {
 	delete mpStreamBuffer;
-	delete mpBuff26;
   if(mpBitz26)
   {
     delete mpBitz26;
   }
-  delete mpBuff34;
-//	delete m_pBuff35;
-//	delete m_pBuff37;
-//	delete m_pBuff40;
+  if(mpBitz34)
+  {
+    delete mpBitz34;
+  }
+  if(mpBitz35)
+  {
+    delete mpBitz35;
+  }
+  if(mpBitz37)
+  {
+    delete mpBitz37;
+  }
+  if(mpBitz40)
+  {
+    delete mpBitz40;
+  }
 }
 
 exit_status Kepler::openFile(string filename)
@@ -86,37 +149,6 @@ exit_status Kepler::openFile(string filename)
 		return status_failure;
 	}
 	return status_success;
-}
-
-/*
-void Kepler::printShift()
-{
-	for(int i = 0;i < mBuff26Length;++i)
-  {
-    cout << "|";
-    for(int j = 0;j < bits26 - 1;++j)
-    {
-      cout << ' ';
-    }
-  }
-  cout << '\n';
-}
-
-void Kepler::printStreamBuffer(uint64_t *pBuff)
-{
-  for(int j = 0; j < mStreamBufferLength;++j)
-  {
-    cout << bitset<bitwidth>(pBuff[j]);
-  }
-}
-//*/
-
-void Kepler::shiftItAll(uint64_t *pBuff, size_t n, int shift)
-{
-  for(int j = 0; j < mStreamBufferLength;++j)
-  {
-    pBuff[j] = (pBuff[j] << n) | (pBuff[j+1] >> shift);
-  }
 }
 
 template<size_t number_of_bits>
@@ -138,44 +170,7 @@ exit_status Kepler::convertBuffer(
   for(int i = 0;i < buffLength;++i)
   { 
     pBuff[i] = pStreamBuffer[0] >> shift;
-    shiftItAll(pStreamBuffer, number_of_bits, shift);
-  }
-
-  delete [] pStreamBuffer;
-  
-  return status_success;
-}
-
-template<size_t number_of_bits>
-exit_status Kepler::convertBuffer2(bitset<number_of_bits> *pBuffer)
-{
-  if(!mpStreamBuffer)
-  {
-    return status_failure;
-  }
-
-  //uint64_t *pStreamBuffer = new uint64_t[mStreamBufferLength];
-  //memcpy(pStreamBuffer,mpStreamBuffer,sizeof(uint64_t) * mStreamBufferLength);
-  //
-  //
-  //
-  //
-  //
-  // start here in the morning
-  // wtf did you break
-  // need to implement getters
-  //
-  //
-  //
-  //
-  mpBitz26 = new Bitz<26>(pBuffer, mStreamBufferLength, bitwidth)
-
-  int shift = (kBitWidth - number_of_bits);
-  
-  for(int i = 0;i < buffLength;++i)
-  { 
-    pBuff[i] = pStreamBuffer[0] >> shift;
-    shiftItAll(pStreamBuffer, number_of_bits, shift);
+    shiftItAll(pStreamBuffer, mStreamBufferLength, number_of_bits, shift);
   }
 
   delete [] pStreamBuffer;
@@ -201,12 +196,11 @@ exit_status Kepler::fillBuffers()
       bits = 0x0;
     }
 	}
-
-
-
-  convertBuffer<bits26>(mpBuff26, mBuff26Length);
-  convertBuffer<bits34>(mpBuff34, mBuff34Length);
-
+  mpBitz26 = new Bitz<kBits26>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz34 = new Bitz<kBits34>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz35 = new Bitz<kBits35>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz37 = new Bitz<kBits37>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz40 = new Bitz<kBits40>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
 	return status_success;
 }
 
@@ -218,9 +212,9 @@ exit_status Kepler::displayBuffers()
   {
     cout << "|";
     
-    for(int j = 0;j < bitwidth - 1;++j)
+    for(int j = 0;j < kBitWidth - 1;++j)
     {
-      cout << ((j == (bitwidth/2 - 1)) ? "." : " ");
+      cout << ((j == (kBitWidth/2 - 1)) ? "." : " ");
     }
   }
 
@@ -228,34 +222,22 @@ exit_status Kepler::displayBuffers()
 
   for(int i = 0;i < mStreamBufferLength;++i)
   {
-    cout << bitset<bitwidth>(mpStreamBuffer[i]); 
+    cout << bitset<kBitWidth>(mpStreamBuffer[i]); 
   }
 
-  cout << '\n';
-
-	for(int i = 0;i < mBuff26Length;++i)
-  {
-    cout << "|";
-    for(int j = 0;j < bits26 - 1;++j)
-    {
-      cout << ' ';
-    }
-  }
-
-  cout << '\n';
-
-  for(int i = 0;i < mBuff26Length;++i)
-  {
-    cout << bitset<bits26>(mpBuff26[i]); 
-  }
-
-//* TODO:make this less gross
-	for(int i = 0;i < 22; ++i)
-	{
-    cout << "*";	
-	}
-//*/
-  cout << '\n';	
+//  if(mpBitz26)
+//  {
+  mpBitz26->display();
+  mpBitz34->display();
+  mpBitz35->display();
+  mpBitz37->display();
+  mpBitz40->display();
+  cout << "\n";
+//  }
+//  else
+//  {
+//    cout << "Preventing null pointer dereference...\n";
+//  }
 
   return status_success;
 }
@@ -265,3 +247,4 @@ exit_status Kepler::closeFile()
 	fin.close();
 	return status_success;
 }
+
