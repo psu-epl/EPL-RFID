@@ -8,10 +8,10 @@
 
 using namespace std;
 
-const int bitwidth = 64;
-const int streamLength = 8;
-const int bits26 = 26;
-const int bits34 = 34;
+const int kBitWidth = 64;
+const int kStreamLength = 8;
+const int kBits26 = 26;
+const int kBits34 = 34;
 //const int bits35 = 35;
 //const int bits37 = 37;
 //const int bits40 = 40;
@@ -21,6 +21,20 @@ typedef enum
 	status_success = 0, 
 	status_failure 
 } exit_status;
+
+template<size_t number_of_bits>
+class Bitz
+{
+  public:
+    Bitz(int totalBits);
+    Bitz(uint64_t *pBuff,int mStreamBufferLength,int bitwidth);
+    ~Bitz();
+
+  private:
+    int mBitBufferLength;
+    bitset<number_of_bits> *mpBitBuffer;
+    int shift; // TODO: Implement me
+};
 
 class Kepler
 {
@@ -39,7 +53,13 @@ class Kepler
       bitset<number_of_bits> *pBuff, 
       int buffLength
     );
-		
+	
+    template<size_t number_of_bits>
+    exit_status convertBuffer2(
+      bitset<number_of_bits> *pBuff, 
+      int buffLength
+    );
+
     exit_status displayBuffers();
 		exit_status closeFile();
 	
@@ -53,10 +73,11 @@ class Kepler
 		ifstream fin; 
 		
 		int mBuff26Length;
-		bitset<bits26> *mpBuff26;
+		bitset<kBits26> *mpBuff26;
 		
     int mBuff34Length;
-		bitset<bits34> *mpBuff34;
+		bitset<kBits34> *mpBuff34;
+    Bitz<26> *mpBitz26;
 //		int m_size35;
 //		int m_size37;
 //		int m_size40;

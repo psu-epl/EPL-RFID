@@ -7,18 +7,47 @@
 
 using namespace std;
 
+template<size_t number_of_bits>
+Bitz<number_of_bits>::Bitz(int totalBits)
+{
+  mBitBufferLength = totalBits / number_of_bits;
+  mpBitBuffer = new bitset<number_of_bits>[mBitBufferLength]; 
+}
+
+template<size_t number_of_bits>
+Bitz<number_of_bits>::Bitz(
+  uint64_t *pStreamBuffer, 
+  int streamBufferLength, 
+  int bitwidth
+)
+{
+  int totalBits = streamBufferLength * bitwidth; 
+  mBitBufferLength = totalBits / number_of_bits;
+  mpBitBuffer = new bitset<number_of_bits>[mBitBufferLength]; 
+  memcpy(mpBitBuffer, pStreamBuffer, sizeof(uint64_t) * streamBufferLength);
+}
+
+template<size_t number_of_bits>
+Bitz<number_of_bits>::~Bitz()
+{
+  delete mpBitBuffer;
+}
+
 Kepler::Kepler() : 
-  mStreamLength(streamLength),
-  mStreamBufferLength(streamLength/2)
+  mStreamLength(kStreamLength),
+  mStreamBufferLength(kStreamLength/2)
 {
 	mpStreamBuffer = new uint64_t[mStreamBufferLength];
-  int totalBits = mStreamBufferLength * bitwidth; 
+  int totalBits = mStreamBufferLength * kBitWidth; 
 	
-  mBuff26Length = totalBits / bits26;
-	mpBuff26 = new bitset<bits26>[mBuff26Length];
-  //memset(mpBuff26,0,mpBuff26->size());  
-  mBuff34Length = totalBits / bits34;
-	mpBuff34 = new bitset<bits34>[mBuff34Length];
+  mBuff26Length = totalBits / kBits26;
+	mpBuff26 = new bitset<kBits26>[mBuff26Length];
+ 
+  //mpBitz26 = new Bitz<26>(totalBits);
+  mpBitz26 = NULL;
+
+  mBuff34Length = totalBits / kBits34;
+	mpBuff34 = new bitset<kBits34>[mBuff34Length];
 /*  
 	m_size34 = totalBits / bits34;
 	m_pBuff34 = new bitset<bits34>[m_size34];   
@@ -38,7 +67,11 @@ Kepler::~Kepler()
 {
 	delete mpStreamBuffer;
 	delete mpBuff26;
-	delete mpBuff34;
+  if(mpBitz26)
+  {
+    delete mpBitz26;
+  }
+  delete mpBuff34;
 //	delete m_pBuff35;
 //	delete m_pBuff37;
 //	delete m_pBuff40;
@@ -80,7 +113,6 @@ void Kepler::printStreamBuffer(uint64_t *pBuff)
 
 void Kepler::shiftItAll(uint64_t *pBuff, size_t n, int shift)
 {
-  (void)shift;
   for(int j = 0; j < mStreamBufferLength;++j)
   {
     pBuff[j] = (pBuff[j] << n) | (pBuff[j+1] >> shift);
@@ -101,7 +133,44 @@ exit_status Kepler::convertBuffer(
   uint64_t *pStreamBuffer = new uint64_t[mStreamBufferLength];
   memcpy(pStreamBuffer,mpStreamBuffer,sizeof(uint64_t) * mStreamBufferLength);
   
-  int shift = (bitwidth - number_of_bits);
+  int shift = (kBitWidth - number_of_bits);
+  
+  for(int i = 0;i < buffLength;++i)
+  { 
+    pBuff[i] = pStreamBuffer[0] >> shift;
+    shiftItAll(pStreamBuffer, number_of_bits, shift);
+  }
+
+  delete [] pStreamBuffer;
+  
+  return status_success;
+}
+
+template<size_t number_of_bits>
+exit_status Kepler::convertBuffer2(bitset<number_of_bits> *pBuffer)
+{
+  if(!mpStreamBuffer)
+  {
+    return status_failure;
+  }
+
+  //uint64_t *pStreamBuffer = new uint64_t[mStreamBufferLength];
+  //memcpy(pStreamBuffer,mpStreamBuffer,sizeof(uint64_t) * mStreamBufferLength);
+  //
+  //
+  //
+  //
+  //
+  // start here in the morning
+  // wtf did you break
+  // need to implement getters
+  //
+  //
+  //
+  //
+  mpBitz26 = new Bitz<26>(pBuffer, mStreamBufferLength, bitwidth)
+
+  int shift = (kBitWidth - number_of_bits);
   
   for(int i = 0;i < buffLength;++i)
   { 
@@ -132,6 +201,8 @@ exit_status Kepler::fillBuffers()
       bits = 0x0;
     }
 	}
+
+
 
   convertBuffer<bits26>(mpBuff26, mBuff26Length);
   convertBuffer<bits34>(mpBuff34, mBuff34Length);
