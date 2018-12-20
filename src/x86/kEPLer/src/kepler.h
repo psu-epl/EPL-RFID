@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <algorithm>
+#include <list>
 
 using namespace std;
 
@@ -50,6 +52,7 @@ class Kepler
 
 		exit_status openFile(string filename);
 		exit_status openFile2(string filename);
+		exit_status openFile3(string filename);
 		exit_status fillBuffers();
     exit_status shiftLeft();
    
@@ -61,14 +64,18 @@ class Kepler
 	
     exit_status displayBuffers();
 		exit_status closeFile();
+    exit_status closeFile2();
+    exit_status closeFile3();
 	
 	private:
     const int mStreamLength;
 		const int mStreamBufferLength;
     uint64_t *mpStreamBuffer;
+		int mOpenFileCount;
 		
-		ifstream fin;
-//    ifstream mFin[kMaxOpenFiles];
+    ifstream fin;
+    ifstream mFin[kMaxOpenFiles];
+    list<ifstream *> mFin2;
 		
 		// 26, 34, 35, 37, 40
     Bitz<kBits26> *mpBitz26;

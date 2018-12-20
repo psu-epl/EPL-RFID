@@ -40,7 +40,7 @@ Bitz<number_of_bits>::Bitz(
   memcpy(pTempStreamBuffer, pStreamBuffer, sizeof(uint64_t) * streamBufferLength);
   convertBuffer(pTempStreamBuffer,streamBufferLength);
 
-  delete pTempStreamBuffer;
+  delete [] pTempStreamBuffer;
 }
 
 template<size_t number_of_bits>
@@ -104,7 +104,8 @@ int Bitz<number_of_bits>::getBitBufferLength() const
 
 Kepler::Kepler() : 
   mStreamLength(kStreamLength),
-  mStreamBufferLength(kStreamLength/2)
+  mStreamBufferLength(kStreamLength/2),
+  mOpenFileCount(0)
 {
 	mpStreamBuffer = new uint64_t[mStreamBufferLength];
  
@@ -152,13 +153,13 @@ exit_status Kepler::openFile(string filename)
 	return status_success;
 }
 
-/*
+//*
 exit_status Kepler::openFile2(string filename)
 {
   if(mOpenFileCount >= kMaxOpenFiles)
   {
     cout << "Maximum number of files are open...\n";
-    return 1;
+    return status_failure;
   }
   int tempFileCount = mOpenFileCount + 1; 
 	mFin[tempFileCount].open(filename);
@@ -169,11 +170,60 @@ exit_status Kepler::openFile2(string filename)
 		return status_failure;
   }
 
- // ++file
+  ++mOpenFileCount;
 
 	return status_success;
 }
 //*/
+
+//*
+exit_status Kepler::openFile3(string filename)
+{
+  ifstream *pFin = new ifstream;
+  pFin->open(filename);
+  mFin2.push_front(pFin);
+
+  /*
+	if(mFin[tempFileCount].fail())
+	{
+		cout << "Open file failure: " << filename << "\n";
+		return status_failure;
+  }
+*/
+
+	return status_success;
+}
+//*/
+
+exit_status Kepler::closeFile()
+{
+	fin.close();
+	return status_success;
+}
+
+exit_status Kepler::closeFile2()
+{
+  for(int i = 0;i < mOpenFileCount;++i)
+  {
+    if(mFin[i])
+    {
+      mFin[i].close();
+    }
+  }
+	return status_success;
+}
+
+exit_status Kepler::closeFile3()
+{
+  for(int i = 0;i < mOpenFileCount;++i)
+  {
+    if(mFin[i])
+    {
+      mFin[i].close();
+    }
+  }
+	return status_success;
+}
 
 template<size_t number_of_bits>
 exit_status Kepler::convertBuffer(
@@ -189,7 +239,7 @@ exit_status Kepler::convertBuffer(
   uint64_t *pStreamBuffer = new uint64_t[mStreamBufferLength];
   memcpy(pStreamBuffer,mpStreamBuffer,sizeof(uint64_t) * mStreamBufferLength);
   
-  int shift = (kBitWidth - number_of_bits);
+  int shift = kBitWidth - number_of_bits;
   
   for(int i = 0;i < buffLength;++i)
   { 
@@ -249,26 +299,15 @@ exit_status Kepler::displayBuffers()
     cout << bitset<kBitWidth>(mpStreamBuffer[i]); 
   }
 
-//  if(mpBitz26)
-//  {
+// This could cause problems 
   mpBitz26->display();
   mpBitz34->display();
   mpBitz35->display();
   mpBitz37->display();
   mpBitz40->display();
   cout << "\n";
-//  }
-//  else
-//  {
-//    cout << "Preventing null pointer dereference...\n";
-//  }
 
   return status_success;
 }
 
-exit_status Kepler::closeFile()
-{
-	fin.close();
-	return status_success;
-}
 
