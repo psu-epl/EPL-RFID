@@ -181,16 +181,15 @@ exit_status Kepler::openFile3(string filename)
 {
   ifstream *pFin = new ifstream;
   pFin->open(filename);
-  mFin2.push_front(pFin);
 
-  /*
-	if(mFin[tempFileCount].fail())
+  
+	if(pFin->fail())
 	{
 		cout << "Open file failure: " << filename << "\n";
 		return status_failure;
   }
-*/
 
+  mFin2.push_front(pFin);
 	return status_success;
 }
 //*/
@@ -215,12 +214,8 @@ exit_status Kepler::closeFile2()
 
 exit_status Kepler::closeFile3()
 {
-  for(int i = 0;i < mOpenFileCount;++i)
-  {
-    if(mFin[i])
-    {
-      mFin[i].close();
-    }
+  for(auto const &f : mFin2) {
+     f->close(); 
   }
 	return status_success;
 }
@@ -253,6 +248,32 @@ exit_status Kepler::convertBuffer(
 }
 
 exit_status Kepler::fillBuffers()
+{
+  uint32_t a = 0x0;
+	uint64_t bits = 0x0; 
+
+  for(int i = 0;fin >> hex >> a && i < mStreamLength;++i)
+	{
+    if(i % 2 == 0)
+    {
+      bits = ((uint64_t) a) << 32;  
+    }
+    else
+    {
+      bits |= a;
+		  mpStreamBuffer[i/2] = bits;
+      bits = 0x0;
+    }
+	}
+  mpBitz26 = new Bitz<kBits26>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz34 = new Bitz<kBits34>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz35 = new Bitz<kBits35>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz37 = new Bitz<kBits37>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+  mpBitz40 = new Bitz<kBits40>(mpStreamBuffer, mStreamBufferLength, kBitWidth);
+	return status_success;
+}
+
+exit_status Kepler::fillBuffers2()
 {
   uint32_t a = 0x0;
 	uint64_t bits = 0x0; 
