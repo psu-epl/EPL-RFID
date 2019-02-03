@@ -12,12 +12,16 @@ using namespace std;
 
 const int kBitWidth = 64;
 const int kStreamLength = 8;
+const int kMaxOpenFiles = 5;
+
 const int kBits26 = 26;
 const int kBits34 = 34;
 const int kBits35 = 35;
 const int kBits37 = 37;
 const int kBits40 = 40;
-const int kMaxOpenFiles = 5;
+const int kBits64 = 64;
+
+const int kShiftRange = 4;
 
 typedef enum 
 { 
@@ -29,12 +33,12 @@ template<size_t number_of_bits>
 class Bitz
 {
   public:
-    Bitz(int totalBits);
     Bitz(uint64_t *pBuff,int mStreamBufferLength,int bitWidth);
     ~Bitz();
     
     exit_status convertBuffer(uint64_t *pStreamBuffer,int streamBufferLength);
     void display();
+    void cleanDisplay();
     int getBitBufferLength() const;
 
   private:
@@ -54,6 +58,11 @@ class Kepler
 		exit_status openFile2(string filename);
 		exit_status openFile3(string filename);
 		exit_status fillBuffers();
+    
+//    template<size_t number_of_bits>
+    exit_status analyzeBuffer();
+    
+    exit_status analyzeBuffers();
     exit_status shiftLeft();
    
     template<size_t number_of_bits>
@@ -83,6 +92,7 @@ class Kepler
     Bitz<kBits35> *mpBitz35;
     Bitz<kBits37> *mpBitz37;
     Bitz<kBits40> *mpBitz40;
+    Bitz<kBits64> *mpBitz64;
 };
 
 #endif // _EPLURBUS_ 

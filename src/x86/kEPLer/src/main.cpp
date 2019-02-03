@@ -19,7 +19,13 @@ int main(int argc, char *argv[])
 	}
 
 	kepler->fillBuffers();
+  cout << "Control buffers: \n";
 	kepler->displayBuffers();
+  cout << "\n\n";
+  cout << "Going down the rabbit hole: \n";
+  //kepler->analyzeBuffers();
+  kepler->analyzeBuffer();
+  cout << "\n\n";
 	kepler->closeFile();
 	
 	delete kepler;
