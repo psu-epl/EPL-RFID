@@ -21,7 +21,7 @@ const int kBits37 = 37;
 const int kBits40 = 40;
 const int kBits64 = 64;
 
-const int kShiftRange = 4;
+const int kShiftRange = 64;
 
 typedef enum 
 { 
@@ -59,17 +59,13 @@ class Kepler
 		exit_status openFile3(string filename);
 		exit_status fillBuffers();
     
-//    template<size_t number_of_bits>
+    template<int number_of_bits>
     exit_status analyzeBuffer();
     
     exit_status analyzeBuffers();
     exit_status shiftLeft();
-   
-    template<size_t number_of_bits>
-    exit_status convertBuffer(
-      bitset<number_of_bits> *pBuff, 
-      int buffLength
-    );
+ 
+    exit_status shiftBy(uint64_t *pDest,uint64_t *pSource,int buffLength,int shift);
 	
     exit_status displayBuffers();
 		exit_status closeFile();
@@ -94,6 +90,44 @@ class Kepler
     Bitz<kBits40> *mpBitz40;
     Bitz<kBits64> *mpBitz64;
 };
+
+//*
+template<int number_of_bits>
+exit_status Kepler::analyzeBuffer()
+{
+  Bitz<number_of_bits> *pBitz = NULL;
+  
+
+  uint64_t *pShiftedStreamBuffer = NULL;
+  
+  for(int i = 0;i < kShiftRange;++i)
+  {
+    cout << "\n\nShift: " << i;
+    pShiftedStreamBuffer = new uint64_t[mStreamBufferLength];
+    shiftBy(pShiftedStreamBuffer,mpStreamBuffer,mStreamBufferLength,i);
+    
+    try
+    {
+      pBitz = new Bitz<number_of_bits>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+    }
+    catch (std::bad_alloc& ba)
+    {
+      std::cerr << "bad_alloc caught in analyzeBuffers: " << ba.what() << '\n';
+      abort();
+    }
+
+    pBitz->display();
+    
+    delete [] pShiftedStreamBuffer;
+    delete pBitz;
+  }
+	return status_success;
+}
+//*/
 
 #endif // _EPLURBUS_ 
 

@@ -255,6 +255,7 @@ exit_status Kepler::closeFile3()
 	return status_success;
 }
 
+/*
 template<size_t number_of_bits>
 exit_status Kepler::convertBuffer(
   bitset<number_of_bits> *pBuff, 
@@ -281,6 +282,7 @@ exit_status Kepler::convertBuffer(
   
   return status_success;
 }
+//*/
 
 exit_status Kepler::fillBuffers()
 {
@@ -312,65 +314,29 @@ exit_status Kepler::fillBuffers()
   return status_success;
 }
 
-//template<size_t number_of_bits>
-exit_status shiftBy(uint64_t *pDest, uint64_t *pSource, int bufSize, int shift)
+exit_status Kepler::shiftBy(
+  uint64_t *pDest, 
+  uint64_t *pSource, 
+  int buffLength, 
+  int shift
+)
 {
   if(!pSource)
   {
     return status_failure;
   }
 
-  uint64_t *pBuff = new uint64_t[bufSize];
-  memcpy(pBuff,pSource,sizeof(uint64_t) * bufSize);
+  uint64_t *pBuff = new uint64_t[buffLength];
+  memcpy(pBuff,pSource,sizeof(uint64_t) * buffLength);
   
-  for(int i = 0;i < bufSize-1;++i)
+  for(int i = 0;i < buffLength;++i)
   { 
-    pDest[i] = pBuff[i] << shift | pBuff[i+1] >> (64 - shift);
+    pDest[i] = pBuff[i] << shift | pBuff[i + 1] >> 63;
   }
 
   delete [] pBuff;
 
   return status_success;
-}
-
-//template<size_t number_of_bits>
-exit_status Kepler::analyzeBuffer()
-{
-  //Bitz<number_of_bits> *pBitz = NULL;
-  Bitz<kBits26> *pBitz = NULL;
-
-  uint64_t *pShiftedStreamBuffer = NULL;
-  
-  for(int i = 1;i < kShiftRange;++i)
-  {
-    cout << "\n\nShift: " << i;
-    pShiftedStreamBuffer = new uint64_t[mStreamBufferLength];
-    shiftBy(pShiftedStreamBuffer,mpStreamBuffer,mStreamBufferLength,i);
-    
-   
-    try
-    {
-      //pBitz = new Bitz<number_of_bits>(
-      pBitz = new Bitz<kBits26>(
-        pShiftedStreamBuffer, 
-        mStreamBufferLength, 
-        kBitWidth
-      );
-    }
-    catch (std::bad_alloc& ba)
-    {
-      std::cerr << "bad_alloc caught in analyzeBuffers: " << ba.what() << '\n';
-      abort();
-    }
-
-    pBitz->display();
-    //pBitz->cleanDisplay();
-    //cout << '\n';
-    
-    delete [] pShiftedStreamBuffer;
-    delete pBitz;
-  }
-	return status_success;
 }
 
 exit_status Kepler::analyzeBuffers()

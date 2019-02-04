@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 	kepler->displayBuffers();
   cout << "\n\n";
   cout << "Going down the rabbit hole: \n";
-  //kepler->analyzeBuffers();
-  kepler->analyzeBuffer();
+  kepler->analyzeBuffer<kBits35>();
+ // kepler->analyzeBuffer<kBits34>();
   cout << "\n\n";
 	kepler->closeFile();
 	
