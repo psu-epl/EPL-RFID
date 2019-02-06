@@ -91,6 +91,8 @@ exit_status Bitz<number_of_bits>::convertBuffer(
 template<size_t number_of_bits>
 void Bitz<number_of_bits>::cleanDisplay()
 {
+  cout << "    ";
+
   for(int i = 0;i < mBitBufferLength;++i)
   {
     cout << bitset<number_of_bits>(mpBitBuffer[i]); 
@@ -106,7 +108,7 @@ template<size_t number_of_bits>
 void Bitz<number_of_bits>::display()
 {
 //*
-  cout << '\n';
+//  cout << '\n';
 	
   for(int i = 0;i < mBitBufferLength;++i)
   {
@@ -331,7 +333,14 @@ exit_status Kepler::shiftBy(
   
   for(int i = 0;i < buffLength;++i)
   { 
-    pDest[i] = pBuff[i] << shift | pBuff[i + 1] >> 63;
+    if(shift == 0)
+    {
+      pDest[i] = pBuff[i];
+    }
+    else
+    {
+      pDest[i] = pBuff[i] << shift | pBuff[i + 1] >> (64 - shift);
+    }
   }
 
   delete [] pBuff;
@@ -375,12 +384,36 @@ exit_status Kepler::analyzeBuffers()
     }
     try
     {
-      pBitz64 = new Bitz<kBits64>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
-      pBitz26 = new Bitz<kBits26>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
-      pBitz34 = new Bitz<kBits34>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
-      pBitz35 = new Bitz<kBits35>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
-      pBitz37 = new Bitz<kBits37>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
-      pBitz40 = new Bitz<kBits40>(pShiftedStreamBuffer, mStreamBufferLength, kBitWidth);
+      pBitz64 = new Bitz<kBits64>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+      pBitz26 = new Bitz<kBits26>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+      pBitz34 = new Bitz<kBits34>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+      pBitz35 = new Bitz<kBits35>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+      pBitz37 = new Bitz<kBits37>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
+      pBitz40 = new Bitz<kBits40>(
+        pShiftedStreamBuffer, 
+        mStreamBufferLength, 
+        kBitWidth
+      );
     }
     catch (std::bad_alloc& ba)
     {
@@ -413,7 +446,7 @@ exit_status Kepler::analyzeBuffers()
 
 exit_status Kepler::displayBuffers()
 {
-	cout << "Dispaly stuff\n";
+  cout << "64: ";
 
 	for(int i = 0;i < mStreamBufferLength;++i)
   {
@@ -426,6 +459,7 @@ exit_status Kepler::displayBuffers()
   }
 
   cout << '\n';
+  cout << "    ";
 
   for(int i = 0;i < mStreamBufferLength;++i)
   {
@@ -433,12 +467,18 @@ exit_status Kepler::displayBuffers()
   }
 
 // This could cause problems 
+  cout << "\n26: ";
   mpBitz26->display();
+  cout << "\n34: ";
   mpBitz34->display();
+  cout << "\n35: ";
   mpBitz35->display();
+  cout << "\n37: ";
   mpBitz37->display();
+  cout << "\n40: ";
   mpBitz40->display();
-  mpBitz64->display();
+ // cout << "\n64: ";
+ // mpBitz64->display();
  
   cout << "\n";
 /*  

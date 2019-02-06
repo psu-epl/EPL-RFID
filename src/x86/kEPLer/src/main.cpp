@@ -19,12 +19,19 @@ int main(int argc, char *argv[])
 	}
 
 	kepler->fillBuffers();
-  cout << "Control buffers: \n";
+  cout << "\nControl buffers: \n\n";
+  cout << "Bitwidth\n";
+  cout << "|\n";
+  cout << "v\n";
 	kepler->displayBuffers();
   cout << "\n\n";
   cout << "Going down the rabbit hole: \n";
+  kepler->analyzeBuffer<kBits26>();
+  kepler->analyzeBuffer<kBits34>();
   kepler->analyzeBuffer<kBits35>();
- // kepler->analyzeBuffer<kBits34>();
+  kepler->analyzeBuffer<kBits37>();
+  kepler->analyzeBuffer<kBits40>();
+  kepler->analyzeBuffer<kBits40>();
   cout << "\n\n";
 	kepler->closeFile();
 	

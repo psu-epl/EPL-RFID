@@ -7,6 +7,7 @@
 #include <bitset>
 #include <algorithm>
 #include <list>
+#include <iomanip>
 
 using namespace std;
 
@@ -96,13 +97,17 @@ template<int number_of_bits>
 exit_status Kepler::analyzeBuffer()
 {
   Bitz<number_of_bits> *pBitz = NULL;
-  
 
   uint64_t *pShiftedStreamBuffer = NULL;
-  
+ 
+  cout << "\n\nBitwidth: " << number_of_bits;
+  cout << "\nNumber of bits left shifted\n";
+  cout << "|\n";
+  cout << "v";
   for(int i = 0;i < kShiftRange;++i)
   {
-    cout << "\n\nShift: " << i;
+    cout << "\n" << setw(2) << i << ": ";
+    //cout << "\n\nShift: " << i;
     pShiftedStreamBuffer = new uint64_t[mStreamBufferLength];
     shiftBy(pShiftedStreamBuffer,mpStreamBuffer,mStreamBufferLength,i);
     
